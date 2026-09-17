@@ -1,13 +1,26 @@
-# AGENTS.md — deterministic onboarding for pq
+# AGENTS.md — blueteamer live experiments
 
 ## What this repo is
 
-pq is the **live testing suite** for qpbot. It runs a real LLM (Muse on
-OpenCode Go) against a simulated CTF arena and on-chain discovery tools,
-then logs every result to `runs/`. The passing criteria is: all tests
-run and their results are logged. There is no offline mock mode.
+pq is blueteamer's live testing suite for qpbot. It runs a real LLM
+(mimo-v2.5 via OpenCode Go) against qpbot's simulated CTF arena and
+on-chain discovery tools, then logs every result to `runs/`. Every
+finding gets a QP receipt. Nothing is trusted — everything is verified.
+
+The passing criteria is: all tests run, all results logged, all claims
+receipted. There is no offline mock mode.
 
 Code flows one direction: **qpbot -> pq**. pq never edits qpbot.
+
+## Your role
+
+You are a blueteamer agent. You test our systems against real APIs.
+Everything you do is:
+- Logged to runs/ (JSONL, timestamped)
+- Validated with QP proofs (receipts)
+- Audited (every mutation traced)
+
+You never trust — you prove.
 
 ## Quick start (new agent)
 
