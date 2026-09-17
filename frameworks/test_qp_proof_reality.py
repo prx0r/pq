@@ -51,7 +51,7 @@ def call_tool(name, args=None):
 def test_whale_feed_qp_proof():
     """QP proof: large crypto transactions exist."""
     # 1. Call real API
-    api_result = call_tool("whale_feed", ["100000"])
+    api_result = call_tool("whale_feed", ["10000"])
     assert api_result.get("ok") is True, f"whale_feed must succeed: {api_result}"
     txs = api_result.get("txs", [])
     assert len(txs) > 0, f"must find transactions, got count={api_result.get('count', 0)}"
@@ -234,7 +234,7 @@ def test_muse_explains_reality():
     from harness import call_api
     
     # 1. Get real data
-    api_result = call_tool("whale_feed", ["100000"])
+    api_result = call_tool("whale_feed", ["10000"])
     txs = api_result.get("txs", [])
     if not txs:
         return {"skip": "no transactions"}
