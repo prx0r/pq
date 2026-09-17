@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pog.town/schemas/acom-0.1.json",
+  "title": "A-COM seven canonical objects + TransitionReceipt",
+  "definitions": {
+    "bool3": { "enum": ["TRUE", "FALSE", "UNKNOWN"] },
+    "state": {
+      "type": "object",
+      "required": ["kind", "cursor", "rules_commit", "event_root", "state_root"],
+      "properties": {
+        "kind": { "const": "STATE" },
+        "cursor": { "type": "integer", "minimum": 0 },
+        "rules_commit": { "type": "string" },
+        "event_root": { "type": "string" },
+        "state_root": { "type": "string" }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "required": ["kind", "id", "statement", "domain", "result"],
+      "properties": {
+        "kind": { "const": "CLAIM" },
+        "id": { "type": "string" },
+        "statement": { "type": "string" },
+        "domain": { "type": "string" },
+        "result": { "$ref": "#/definitions/bool3" },
+        "valid_from": { "type": "string" },
+        "valid_until": { "type": "string" }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["kind", "id", "metric", "value", "unit", "as_of", "source"],
+      "properties": {
+        "kind": { "const": "EVIDENCE" },
+        "id": { "type": "string" },
+        "metric": { "type": "string" },
+        "unit": { "type": "string" },
+        "as_of": { "type": "string" },
+        "source": { "type": "object" }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": ["kind", "id", "task_kind", "target", "acceptance", "status"],
+      "properties": {
+        "kind": { "const": "TASK" },
+        "id": { "type": "string" },
+        "task_kind": { "type": "string" },
+        "target": { "type": "string" },
+        "acceptance": { "type": "object" },
+        "status": { "enum": ["READY", "RUNNING", "DONE", "FAILED"] }
+      }
+    },
+    "run": {
+      "type": "object",
+      "required": ["kind", "id", "task", "worker"],
+      "properties": {
+        "kind": { "const": "RUN" },
+        "id": { "type": "string" },
+        "task": { "type": "string" },
+        "worker": { "type": "string" },
+        "model": { "type": "string" },
+        "tokens": { "type": "integer", "minimum": 0 },
+        "cost": { "type": "number", "minimum": 0 },
+        "duration_ms": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "required": ["kind", "id", "runtime", "program_hash"],
+      "properties": {
+        "kind": { "const": "GATE" },
+        "id": { "type": "string" },
+        "runtime": { "const": "wasm" },
+        "program_hash": { "type": "string" },
+        "input_schema_hash": { "type": "string" }
+      }
+    },
+    "grant": {
+      "type": "object",
+      "required": ["kind", "id", "subject", "capability", "constraints", "predicates", "expiry"],
+      "properties": {
+        "kind": { "const": "GRANT" },
+        "id": { "type": "string" },
+        "subject": { "type": "string" },
+        "capability": { "type": "string" },
+        "constraints": { "type": "object" },
+        "predicates": { "type": "array" },
+        "expiry": { "type": "string" },
+        "minimum_proof_level": { "type": "integer", "minimum": 0, "maximum": 12 },
+        "signature": { "type": "string" }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "required": ["protocol", "transition_type", "subject", "state_before",
+                   "proposal", "gates", "run", "state_after", "signature"],
+      "properties": {
+        "protocol": { "const": "acom/0.1" },
+        "transition_type": { "enum": ["RESOLVE", "CHALLENGE", "PROMOTE", "GRANT", "OBSERVE"] },
+        "proof_level": { "type": "integer", "minimum": 0, "maximum": 12 }
+      }
+    }
+  }
+}

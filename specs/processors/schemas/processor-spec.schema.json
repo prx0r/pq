@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "A-COM ProcessorSpec",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "kind",
+    "description",
+    "input_types",
+    "output_types",
+    "handles",
+    "capabilities",
+    "consequence_free",
+    "implementation_hash"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "DECOMPOSE",
+        "SEARCH",
+        "DISCOVER",
+        "BUILD",
+        "TEST",
+        "PROBE",
+        "SIMULATE",
+        "RED_TEAM",
+        "REPAIR",
+        "COMPARE",
+        "OPTIMIZE",
+        "MUTATE",
+        "WORLD_GENERATE",
+        "RETRIEVE",
+        "ESCALATE",
+        "COMPOSE"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "input_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "handles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "proof_outputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deterministic": {
+      "type": "boolean"
+    },
+    "consequence_free": {
+      "type": "boolean"
+    },
+    "fallback_pack": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mutation_axes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evaluator_contract": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "implementation_hash": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

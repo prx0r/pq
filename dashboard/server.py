@@ -52,7 +52,17 @@ def _save_tasks(tasks: list[dict]):
 def _provider() -> dict:
     if os.path.exists(PFILE):
         return json.load(open(PFILE))
-    return {"base_url": "https://api.openai.com/v1", "model": ""}
+    return {"base_url": "https://opencode.ai/zen/go/v1",
+            "model": "muse-spark-1.3-contributor"}
+
+
+def _responses_text(resp: dict) -> str:
+    parts = []
+    for item in resp.get("output", []):
+        for c in item.get("content", []):
+            if c.get("type") == "output_text" and c.get("text"):
+                parts.append(c["text"])
+    return "".join(parts) if parts else resp.get("output_text", "")
 
 
 def _chat_via_provider(message: str) -> str:
@@ -67,25 +77,47 @@ def _chat_via_provider(message: str) -> str:
                 "box (it never touches chat) and try again.")
     key = v.resolve("LLM_KEY", "dashboard-chat", "chat-session",
                     v.secrets["LLM_KEY"]["capability"])
-    req_body = json.dumps({
-        "model": prov["model"],
-        "messages": [
-            {"role": "system",
-             "content": "You are the qpbot conversational assistant. "
-                        "Autonomous red-team work runs beside this chat; "
-                        "answer directly and briefly."},
-            *HISTORY[-10:],
-            {"role": "user", "content": message},
-        ],
-    }).encode()
+    model = prov["model"]
+    base = prov["base_url"].rstrip("/")
+    if model.startswith("muse-spark"):
+        # OpenCode Go serves muse-spark via Responses API, not chat/completions.
+        req_body = json.dumps({
+            "model": model,
+            "input": [
+                {"role": "system",
+                 "content": "You are the pq conversational assistant. "
+                            "Autonomous red-team work runs beside this chat; "
+                            "answer directly and briefly."},
+                *HISTORY[-10:],
+                {"role": "user", "content": message},
+            ],
+            "stream": False,
+        }).encode()
+        url = base + "/responses"
+    else:
+        req_body = json.dumps({
+            "model": model,
+            "messages": [
+                {"role": "system",
+                 "content": "You are the pq conversational assistant. "
+                            "Autonomous red-team work runs beside this chat; "
+                            "answer directly and briefly."},
+                *HISTORY[-10:],
+                {"role": "user", "content": message},
+            ],
+        }).encode()
+        url = base + "/chat/completions"
     req = urllib.request.Request(
-        prov["base_url"].rstrip("/") + "/chat/completions", data=req_body,
+        url, data=req_body,
         headers={"Content-Type": "application/json",
                  "Authorization": f"Bearer {key}"}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=90) as r:
             body = json.load(r)
-        text = body["choices"][0]["message"]["content"]
+        if model.startswith("muse-spark"):
+            text = _responses_text(body)
+        else:
+            text = body["choices"][0]["message"]["content"]
     except Exception as e:  # noqa: BLE001 — provider errors surface as chat
         return f"Provider call failed: {type(e).__name__}: {e}"
     HISTORY.append({"role": "user", "content": message})

@@ -1,0 +1,129 @@
+{
+  "schema": "agentcom.recovery/0.1",
+  "recipes": [
+    {
+      "failure": "MISSING_EVIDENCE",
+      "goal": [
+        "evidence.external"
+      ],
+      "preferred": [
+        "processor.probe.oracle",
+        "processor.search.web"
+      ]
+    },
+    {
+      "failure": "UNKNOWN_MECHANISM",
+      "goal": [
+        "solution.candidates"
+      ],
+      "preferred": [
+        "processor.analyze.problem_graph",
+        "processor.search.web",
+        "processor.simulate.world"
+      ]
+    },
+    {
+      "failure": "IMPLEMENTATION_DEFECT",
+      "goal": [
+        "artifact.repaired"
+      ],
+      "preferred": [
+        "processor.analyze.problem_graph",
+        "processor.search.web",
+        "processor.repair.code"
+      ]
+    },
+    {
+      "failure": "DEPENDENCY_MISSING",
+      "goal": [
+        "component.reusable"
+      ],
+      "preferred": [
+        "processor.reuse.gitgoblin",
+        "processor.search.web"
+      ]
+    },
+    {
+      "failure": "BUDGET_PRESSURE",
+      "goal": [
+        "route.optimized"
+      ],
+      "preferred": [
+        "processor.route.qdw",
+        "processor.plan.underengineer"
+      ]
+    },
+    {
+      "failure": "HUMAN_BOUNDARY",
+      "goal": [
+        "human.decision"
+      ],
+      "preferred": [
+        "processor.escalate.hloop"
+      ]
+    },
+    {
+      "failure": "REPEATED_FAILURE",
+      "goal": [
+        "alternative.mechanism"
+      ],
+      "preferred": [
+        "processor.analyze.problem_graph",
+        "processor.simulate.world",
+        "processor.search.web"
+      ]
+    },
+    {
+      "failure": "NEEDS_WORLD_MODEL",
+      "goal": [
+        "simulation.outcome"
+      ],
+      "preferred": [
+        "processor.simulate.world"
+      ]
+    },
+    {
+      "failure": "MODEL_ROUTE_UNCERTAIN",
+      "goal": [
+        "route.optimized"
+      ],
+      "preferred": [
+        "processor.livellm.market",
+        "processor.qdw.model_route",
+        "processor.harbor.eval"
+      ]
+    },
+    {
+      "failure": "VERIFIER_UNCERTAIN",
+      "goal": [
+        "evaluation.candidates"
+      ],
+      "preferred": [
+        "processor.harbor.export",
+        "processor.harbor.eval",
+        "processor.proofdesk.calibrate"
+      ]
+    },
+    {
+      "failure": "AUTONOMY_UNCALIBRATED",
+      "goal": [
+        "human.policy.calibration"
+      ],
+      "preferred": [
+        "processor.proofdesk.calibrate",
+        "processor.human.policy_learn"
+      ]
+    },
+    {
+      "failure": "NO_PROBE_MECHANISM",
+      "goal": [
+        "solution.candidates"
+      ],
+      "preferred": [
+        "processor.analyze.problem_graph",
+        "processor.search.web",
+        "processor.simulate.world"
+      ]
+    }
+  ]
+}

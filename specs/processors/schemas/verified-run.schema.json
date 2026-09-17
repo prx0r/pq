@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Verified Processor Run",
+  "type": "object",
+  "required": [
+    "run_id",
+    "contract_root",
+    "proof_family",
+    "tags",
+    "processor_graph",
+    "metrics",
+    "qp_valid",
+    "actuality",
+    "evaluator_root"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "contract_root": {
+      "type": "string"
+    },
+    "proof_family": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "processor_graph": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "policy": {
+      "type": "object"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "qp_valid": {
+      "type": "boolean"
+    },
+    "actuality": {
+      "type": "boolean"
+    },
+    "evaluator_root": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

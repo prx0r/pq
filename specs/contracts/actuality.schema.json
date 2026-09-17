@@ -1,0 +1,10 @@
+{"$id": "agentcomfinal/contracts/actuality", "title": "ActualityContract",
+ "description": "Frozen WHAT-must-be-true: claim DAG with per-leaf probe/judge/freshness/class/authority.",
+ "type": "object", "required": ["contract_id", "claim", "leaves"],
+ "properties": {"contract_id": {"type": "string"}, "claim": {"type": "string"},
+  "leaves": {"type": "array", "minItems": 1, "items": {"type": "object",
+   "required": ["id", "probe", "evidence_schema", "judge"],
+   "properties": {"id": {"type": "string"},
+    "probe": {"type": "object"}, "evidence_schema": {"type": "object"},
+    "judge": {"type": "object"}, "freshness_s": {"type": "integer"},
+    "evidence_class": {"type": "string"}, "authority": {"type": "string"}}}}}}

@@ -1,0 +1,45 @@
+{
+  "lane_id": "lane:search",
+  "policy": "search-first",
+  "contract_root": "contract:98958550617656ee4f0d7ffa400b84879ff9025332c980e3c4f41fc8e9b322b6",
+  "proof_root": "proofroot:a317ec6e58ddfb910b54846b3762a3320a3efcc7ef98ecf2a374d6e6a7e2668a",
+  "returncode": 0,
+  "elapsed_s": 1.3455,
+  "changed_files": [
+    "LANE.md",
+    "app.js",
+    "index.html",
+    "lane_metrics.json",
+    "opsboard.py",
+    "server.py"
+  ],
+  "artifact_hashes": [
+    [
+      "LANE.md",
+      "836ddf5cbcadabcbf1db3be1b4e734ddd574cac097621fc11ecf5a0f5e4f0029"
+    ],
+    [
+      "app.js",
+      "c9583ebda5a21f1bf2d49a1bd0c6b2e3aeaef8f0e695668407ef5c52ba00c185"
+    ],
+    [
+      "index.html",
+      "901e2de6bc119ba1a129ccd057f4ab05b3f4b6edc7b5bdf8ace56e86c63e2675"
+    ],
+    [
+      "lane_metrics.json",
+      "d4688e5816481dd72ebfa184c145134d7ee27d06e779c915ee09035d4b084ca6"
+    ],
+    [
+      "opsboard.py",
+      "96a32be2b0bde78b070de15acd64855aa70e8843807b094193b9efa49d218a2b"
+    ],
+    [
+      "server.py",
+      "3b02bea6128fc74d274d64f9ec89a9fef608be4e94a3271b80e2f6c4339602fa"
+    ]
+  ],
+  "stdout_path": "/mnt/data/agentcom_control_econ_v07/agentcom_control_econ_v07/validation/results/opsboard/lanes/lane_search/agent_run/stdout.log",
+  "stderr_path": "/mnt/data/agentcom_control_econ_v07/agentcom_control_econ_v07/validation/results/opsboard/lanes/lane_search/agent_run/stderr.log",
+  "record_id": "agent-run:088b01ad04922106f6ecb951b942dcce70b0f3186bee30b54bab3ad63e801398"
+}

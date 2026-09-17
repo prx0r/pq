@@ -1,0 +1,20 @@
+{
+  "winner": "lane:reuse",
+  "ranked": [
+    "lane:reuse",
+    "lane:proof",
+    "lane:simulate"
+  ],
+  "rejected": [
+    "lane:search",
+    "lane:replace"
+  ],
+  "runs": [
+    "lane:reuse",
+    "lane:proof",
+    "lane:search",
+    "lane:simulate",
+    "lane:replace"
+  ],
+  "experiment_id": "experiment:ed81fc9ae37292a4bf0125e939c4eecdf4ff1eac715a5b5fb89813c08051b0c9"
+}

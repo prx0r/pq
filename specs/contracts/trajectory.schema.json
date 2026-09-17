@@ -1,0 +1,11 @@
+{"$id": "agentcomfinal/contracts/trajectory", "title": "Trajectory",
+ "description": "One normalized run: state/policy/attempts/observations/receipts/outcome/cost.",
+ "type": "object",
+ "required": ["contract_root", "plan_root", "policy_id", "attempts", "cost"],
+ "properties": {"contract_root": {"type": "string"}, "plan_root": {"type": "string"},
+  "problem_class": {"type": "string"}, "policy_id": {"type": "string"}, "model": {"type": "string"},
+  "components": {"type": "array"}, "attempts": {"type": "array"},
+  "actuality_before": {"type": "object"}, "actuality_after": {"type": "object"},
+  "qp_receipts": {"type": "array"}, "economic_outcome": {},
+  "cost": {"type": "object", "required": ["tokens", "wall_ms", "usd", "human_minutes"],
+   "properties": {"tokens": {}, "wall_ms": {}, "usd": {}, "human_minutes": {}}}}}

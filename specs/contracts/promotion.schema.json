@@ -1,0 +1,7 @@
+{"$id": "agentcomfinal/contracts/promotion", "title": "PromotionReceipt",
+ "description": "Governed promotion of a lesson/primitive/policy. Nothing self-promotes.",
+ "type": "object", "required": ["subject", "kind", "evidence", "replay", "approver"],
+ "properties": {"subject": {"type": "string"},
+  "kind": {"enum": ["primitive", "policy", "criterion"]},
+  "evidence": {"type": "array"}, "replay": {"type": "object"},
+  "approver": {"type": "string"}}}

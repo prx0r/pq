@@ -11,6 +11,10 @@ import time
 
 # OpenCode Go pricing per 1M tokens (from docs, 2026-09-17)
 PRICING = {
+    "muse-spark-1.3-contributor": {"input": 0.10, "output": 0.20,
+                                   "monthly_cap_minor": 6000},
+    "muse-spark-1.2-contributor": {"input": 0.10, "output": 0.20,
+                                   "monthly_cap_minor": 6000},
     "mimo-v2.5": {"input": 0.14, "output": 0.28, "monthly_cap_minor": 6000},
     "mimo-v2.5-pro": {"input": 0.435, "output": 0.87, "monthly_cap_minor": 1500},
     "deepseek-v4-flash": {"input": 0.15, "output": 0.60, "monthly_cap_minor": 3000},
@@ -39,10 +43,11 @@ def cost_minor(model: str, tokens_in: int, tokens_out: int) -> int:
 
 
 def track(vault, name: str, response: dict, log_path: str = "") -> dict:
-    """Extract usage from an OpenAI-compatible response and record it."""
+    """Extract usage from a chat-completions or Responses payload."""
     usage = response.get("usage", {})
-    tokens_in = usage.get("prompt_tokens", 0)
-    tokens_out = usage.get("completion_tokens", 0)
+    # Responses API uses input/output_tokens; chat uses prompt/completion.
+    tokens_in = usage.get("prompt_tokens", usage.get("input_tokens", 0))
+    tokens_out = usage.get("completion_tokens", usage.get("output_tokens", 0))
     model = response.get("model", "")
     c = cost_minor(model, tokens_in, tokens_out)
     vault.record_usage(name, tokens_in=tokens_in, tokens_out=tokens_out,

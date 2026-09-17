@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#101114"><link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/style.css"><title>AgentCom Workbench</title></head><body>
+<header><div><b>AGENTCOM</b><span id="status"> LOCAL</span></div><div class="pill" id="budget">0 planned</div></header>
+<main>
+<section class="card hero"><div class="eyebrow">HUMAN TASK · HLOOP SHADOW PREDICTION ACTIVE</div><h1 id="taskTitle">No task queued</h1><p id="taskMeta">Autonomous branches continue while you are idle.</p><div id="options"></div></section>
+<section class="keypad" id="keypad"></section>
+<section class="card composer"><div class="tabs"><button class="tab active" data-kind="text">CHAT</button><button class="tab" data-kind="code">CODE</button><button class="tab" data-kind="secret">SECRET</button></div><textarea id="input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Answer, paste code/token/instruction… raw payload stays in the local sealed channel"></textarea><button id="send">SEAL PAYLOAD</button><div class="micro" id="payloadState">payloads are sealed locally; raw text/code is not in logs</div></section>
+<section class="card"><div class="eyebrow">CONTINUAL HUMAN POLICY</div><div id="learning" class="micro">loading…</div></section>
+<section class="grid"><article class="card"><div class="eyebrow">RUNS / BUDGET / APPROVAL</div><div id="runs"></div></article><article class="card"><div class="eyebrow">QP / WALLET GRANTS</div><div id="wallet"></div><div class="micro">Human approval ≠ QP authority. Approved runs remain PENDING_QP until a signed grant is linked.</div></article></section>
+<section class="card"><div class="eyebrow">AGENT LOG · NO RAW HUMAN PAYLOADS</div><pre id="logs"></pre></section>
+</main><script src="/app.js"></script></body></html>

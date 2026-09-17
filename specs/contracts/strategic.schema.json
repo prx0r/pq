@@ -1,0 +1,6 @@
+{"$id": "agentcomfinal/contracts/strategic", "title": "StrategicDecision",
+ "description": "Seesaw output: why this deserves resources. Priorities, not truth.",
+ "type": "object", "required": ["decision_id", "project", "thesis", "first_moat_event"],
+ "properties": {"decision_id": {"type": "string"}, "project": {"type": "string"},
+  "thesis": {"type": "string"}, "first_moat_event": {"type": "string"},
+  "score_components": {"type": "object"}, "falsifier": {"type": "string"}}}

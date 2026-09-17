@@ -1,0 +1,12 @@
+{
+  "contract_root": "contract:98958550617656ee4f0d7ffa400b84879ff9025332c980e3c4f41fc8e9b322b6",
+  "failed": 0,
+  "journal_sha256": "cef74ee3926c2a4db6a47458068920eefee84eddba254c2d46f77d4a50ead667",
+  "name": "OpsBoard AgentCom v0.7 hard dogfood",
+  "ok": true,
+  "passed": 14,
+  "proof_root": "proofroot:a317ec6e58ddfb910b54846b3762a3320a3efcc7ef98ecf2a374d6e6a7e2668a",
+  "qp_receipt": "receipt:223262b61e4966f3",
+  "total": 14,
+  "winner": "lane:reuse"
+}

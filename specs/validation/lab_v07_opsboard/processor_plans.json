@@ -1,0 +1,45 @@
+[
+  {
+    "need": "build",
+    "processors": [
+      "processor.plan.underengineer",
+      "processor.build.code"
+    ],
+    "authority": false
+  },
+  {
+    "need": "human",
+    "processors": [
+      "processor.escalate.hloop"
+    ],
+    "authority": false
+  },
+  {
+    "need": "autonomy",
+    "processors": [
+      "processor.proofdesk.calibrate"
+    ],
+    "authority": false
+  },
+  {
+    "need": "effect",
+    "processors": [
+      "processor.act.external"
+    ],
+    "authority": true
+  },
+  {
+    "need": "readback",
+    "processors": [
+      "processor.probe.oracle"
+    ],
+    "authority": false
+  },
+  {
+    "need": "tournament",
+    "processors": [
+      "processor.experiment.seed0"
+    ],
+    "authority": false
+  }
+]

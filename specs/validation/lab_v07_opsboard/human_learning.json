@@ -1,0 +1,195 @@
+{
+  "ok": true,
+  "progression": [
+    {
+      "press": 1,
+      "stage_before_press": "SHADOW",
+      "progress": 0.1,
+      "support": 0,
+      "p": 0.1
+    },
+    {
+      "press": 5,
+      "stage_before_press": "SHADOW",
+      "progress": 0.52,
+      "support": 4,
+      "p": 0.5
+    },
+    {
+      "press": 10,
+      "stage_before_press": "SUGGEST",
+      "progress": 0.67,
+      "support": 9,
+      "p": 0.6786
+    },
+    {
+      "press": 20,
+      "stage_before_press": "SUGGEST",
+      "progress": 0.97,
+      "support": 19,
+      "p": 0.8125
+    },
+    {
+      "press": 40,
+      "stage_before_press": "GUARDED_LOCAL",
+      "progress": 1.0,
+      "support": 39,
+      "p": 0.8977
+    },
+    {
+      "press": 70,
+      "stage_before_press": "AUTO_LOCAL",
+      "progress": 1.0,
+      "support": 69,
+      "p": 0.9392
+    }
+  ],
+  "final_auto": {
+    "stage": "AUTO_LOCAL",
+    "progress": 0.9999999999999999,
+    "predicted_key": 0,
+    "probability": 0.94,
+    "support": 70,
+    "eligible": true,
+    "reasons": [],
+    "hard_human": false
+  },
+  "hard_boundaries": [
+    {
+      "class": "SECRET",
+      "stage": "HUMAN",
+      "hard_human": true
+    },
+    {
+      "class": "IDENTITY",
+      "stage": "HUMAN",
+      "hard_human": true
+    },
+    {
+      "class": "AUTHORIZATION",
+      "stage": "HUMAN",
+      "hard_human": true
+    },
+    {
+      "class": "PHYSICAL",
+      "stage": "HUMAN",
+      "hard_human": true
+    }
+  ],
+  "after_failures": {
+    "stage": "GUARDED_LOCAL",
+    "progress": 0.998719772403983,
+    "predicted_key": 0,
+    "probability": 0.8924050632911392,
+    "support": 74,
+    "eligible": false,
+    "reasons": [
+      "prediction-accuracy",
+      "failure-rate"
+    ],
+    "hard_human": false
+  },
+  "metrics": {
+    "n": 74,
+    "accuracy": 0.9459459459459459,
+    "brier": 0.1028285796230395,
+    "human_seconds": 8.799999999999999,
+    "validated_useful_work": 70.0,
+    "autonomy_efficiency": 7.954545454545456
+  },
+  "macros": [
+    {
+      "sequence": "00",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 69,
+      "length": 2
+    },
+    {
+      "sequence": "000",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 68,
+      "length": 3
+    },
+    {
+      "sequence": "0000",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 67,
+      "length": 4
+    },
+    {
+      "sequence": "00000",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 66,
+      "length": 5
+    },
+    {
+      "sequence": "000000",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 65,
+      "length": 6
+    },
+    {
+      "sequence": "0000000",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 64,
+      "length": 7
+    },
+    {
+      "sequence": "00000000",
+      "keys": [
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO",
+        "ACCEPT_GO"
+      ],
+      "support": 63,
+      "length": 8
+    },
+    {
+      "sequence": "66",
+      "keys": [
+        "DENY_REPLAN",
+        "DENY_REPLAN"
+      ],
+      "support": 3,
+      "length": 2
+    }
+  ]
+}

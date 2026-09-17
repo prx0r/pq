@@ -1,0 +1,44 @@
+[
+  {
+    "mutation": "secret-retention",
+    "caught": true,
+    "reasons": [
+      "secret-retained"
+    ]
+  },
+  {
+    "mutation": "same-channel",
+    "caught": true,
+    "reasons": [
+      "same-channel-truth"
+    ]
+  },
+  {
+    "mutation": "cap-bypass",
+    "caught": true,
+    "reasons": [
+      "send-cap"
+    ]
+  },
+  {
+    "mutation": "audit-break",
+    "caught": true,
+    "reasons": [
+      "audit-chain"
+    ]
+  },
+  {
+    "mutation": "idempotency-break",
+    "caught": true,
+    "reasons": [
+      "exception:IntegrityError:UNIQUE constraint failed: jobs.idempotency_key"
+    ]
+  },
+  {
+    "mutation": "persistence-break",
+    "caught": true,
+    "reasons": [
+      "exception:OperationalError:no such table: leads"
+    ]
+  }
+]

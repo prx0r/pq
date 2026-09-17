@@ -1,0 +1,136 @@
+{
+  "lane:reuse": {
+    "actuality": "TRUE",
+    "evidence": {
+      "dedup": [
+        2,
+        0,
+        2
+      ],
+      "dispatch_status": "SENT_UNVERIFIED",
+      "metrics": {
+        "default_view": "detailed",
+        "delivered_jobs": 1,
+        "leads": 2,
+        "pending_jobs": 1,
+        "spend_used": 0.30000000000000004
+      }
+    },
+    "ok": true,
+    "reasons": [],
+    "metrics": {
+      "money": 0.08,
+      "wall_seconds": 4.0,
+      "human_seconds": 0.0,
+      "policy": "reuse-first"
+    }
+  },
+  "lane:proof": {
+    "actuality": "TRUE",
+    "evidence": {
+      "dedup": [
+        2,
+        0,
+        2
+      ],
+      "dispatch_status": "SENT_UNVERIFIED",
+      "metrics": {
+        "default_view": "detailed",
+        "delivered_jobs": 1,
+        "leads": 2,
+        "pending_jobs": 1,
+        "spend_used": 0.30000000000000004
+      }
+    },
+    "ok": true,
+    "reasons": [],
+    "metrics": {
+      "money": 0.12,
+      "wall_seconds": 7.0,
+      "human_seconds": 0.0,
+      "policy": "proof-first"
+    }
+  },
+  "lane:search": {
+    "actuality": "FALSE",
+    "evidence": {
+      "dedup": [
+        2,
+        0,
+        2
+      ],
+      "dispatch_status": "SENT_UNVERIFIED",
+      "metrics": {
+        "default_view": "detailed",
+        "delivered_jobs": 1,
+        "leads": 2,
+        "pending_jobs": 1,
+        "spend_used": 0.30000000000000004
+      }
+    },
+    "ok": false,
+    "reasons": [
+      "secret-retained"
+    ],
+    "metrics": {
+      "money": 0.03,
+      "wall_seconds": 3.0,
+      "human_seconds": 0.0,
+      "policy": "search-first"
+    }
+  },
+  "lane:simulate": {
+    "actuality": "TRUE",
+    "evidence": {
+      "dedup": [
+        2,
+        0,
+        2
+      ],
+      "dispatch_status": "SENT_UNVERIFIED",
+      "metrics": {
+        "default_view": "detailed",
+        "delivered_jobs": 1,
+        "leads": 2,
+        "pending_jobs": 1,
+        "spend_used": 0.30000000000000004
+      }
+    },
+    "ok": true,
+    "reasons": [],
+    "metrics": {
+      "money": 0.16,
+      "wall_seconds": 9.0,
+      "human_seconds": 0.0,
+      "policy": "simulation-first"
+    }
+  },
+  "lane:replace": {
+    "actuality": "FALSE",
+    "evidence": {
+      "dedup": [
+        2,
+        0,
+        2
+      ],
+      "dispatch_status": "DELIVERED",
+      "metrics": {
+        "default_view": "detailed",
+        "delivered_jobs": 3,
+        "leads": 2,
+        "pending_jobs": 1,
+        "spend_used": 0.30000000000000004
+      }
+    },
+    "ok": false,
+    "reasons": [
+      "same-channel-truth"
+    ],
+    "metrics": {
+      "money": 0.02,
+      "wall_seconds": 2.0,
+      "human_seconds": 0.0,
+      "policy": "replacement"
+    }
+  }
+}

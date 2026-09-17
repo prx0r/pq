@@ -1,0 +1,81 @@
+{
+  "protocol": "acom/0.1",
+  "transition_type": "RESOLVE",
+  "proof_level": 6,
+  "subject": "opsboard:acceptance",
+  "state_before": {
+    "status": "UNPROVEN"
+  },
+  "proposal": {
+    "id": "opsboard:acceptance",
+    "claim": {
+      "result": "TRUE"
+    },
+    "grant": {
+      "subject": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+      "capability": "spend",
+      "constraints": {
+        "max_value": 0.1,
+        "asset": "USD",
+        "max_calls": 1
+      },
+      "predicates": [
+        "call_id == 'call:opsboard:dispatch:1'",
+        "contract_root == 'contract:98958550617656ee4f0d7ffa400b84879ff9025332c980e3c4f41fc8e9b322b6'"
+      ],
+      "expiry": "2026-09-14T17:08:50.211624+00:00",
+      "intent_id": "grant-intent:8516a2e87dd2397906fd2a2d4045f51c2a464c7b6d4af54a4ca8dbbb69956a56",
+      "signature": "beb90c7c849fe67a916d0ed812ad5d3650c047074dc91b7d09f20dd8c27162baab172df4a45b10bd83fbd2aa6b166532a185735d51dd4778c1f828f9ae2f3104"
+    }
+  },
+  "evidence_root": "c3517f21e58b7f7ed45b34c501cc2af2e0d61c93ef9b0ad45999f3a8ffb37b64",
+  "gates": [
+    {
+      "id": "science-claim-true-v1",
+      "result": "PASS",
+      "proof": "claim result:TRUE"
+    },
+    {
+      "id": "two-sources-v1",
+      "result": "PASS",
+      "proof": "distinct sources: ['independent-product-verifier', 'provider-readback']"
+    },
+    {
+      "id": "evidence-fresh-v1",
+      "result": "PASS",
+      "proof": "2 items complete"
+    },
+    {
+      "id": "no-duplicate-v1",
+      "result": "PASS",
+      "proof": "2 items, 2 unique"
+    }
+  ],
+  "grant": {
+    "subject": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+    "capability": "spend",
+    "constraints": {
+      "max_value": 0.1,
+      "asset": "USD",
+      "max_calls": 1
+    },
+    "predicates": [
+      "call_id == 'call:opsboard:dispatch:1'",
+      "contract_root == 'contract:98958550617656ee4f0d7ffa400b84879ff9025332c980e3c4f41fc8e9b322b6'"
+    ],
+    "expiry": "2026-09-14T17:08:50.211624+00:00",
+    "intent_id": "grant-intent:8516a2e87dd2397906fd2a2d4045f51c2a464c7b6d4af54a4ca8dbbb69956a56",
+    "signature": "beb90c7c849fe67a916d0ed812ad5d3650c047074dc91b7d09f20dd8c27162baab172df4a45b10bd83fbd2aa6b166532a185735d51dd4778c1f828f9ae2f3104"
+  },
+  "run": {
+    "runner": "opsboard-dogfood",
+    "contract_root": "contract:98958550617656ee4f0d7ffa400b84879ff9025332c980e3c4f41fc8e9b322b6",
+    "proof_root": "proofroot:a317ec6e58ddfb910b54846b3762a3320a3efcc7ef98ecf2a374d6e6a7e2668a"
+  },
+  "state_after": {
+    "status": "PROVEN"
+  },
+  "passed": true,
+  "id": "receipt:d6c16522b353f874",
+  "signature": ""
+}

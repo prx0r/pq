@@ -1,0 +1,259 @@
+{
+  "source_sha": "spec-source:225746ab004e5929c7a641b78f1593ae99fd5d39c0b6f8bc9cfd467ed58cb90c",
+  "contract_root": "contract:98958550617656ee4f0d7ffa400b84879ff9025332c980e3c4f41fc8e9b322b6",
+  "proof_root": "proofroot:a317ec6e58ddfb910b54846b3762a3320a3efcc7ef98ecf2a374d6e6a7e2668a",
+  "requirements": [
+    {
+      "id": "R1",
+      "claim": "The product MUST persist leads, jobs, settings, and audit events in SQLite and MUST survive a process restart.",
+      "source_line": 5,
+      "proof_class": "Q3",
+      "kind": "stateful-local",
+      "required_capabilities": [
+        "work.minimal_plan",
+        "artifact.candidate"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R2",
+      "claim": "CSV import MUST accept `email,name` and MUST deduplicate leads by normalized email without creating duplicates on repeated import.",
+      "source_line": 6,
+      "proof_class": "Q3",
+      "kind": "stateful-local",
+      "required_capabilities": [
+        "work.minimal_plan",
+        "artifact.candidate"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R3",
+      "claim": "The API MUST support creating a job idempotently with a client idempotency key and MUST return the same job for a repeated key.",
+      "source_line": 7,
+      "proof_class": "Q3",
+      "kind": "stateful-local",
+      "required_capabilities": [
+        "work.minimal_plan",
+        "artifact.candidate"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R4",
+      "claim": "The product MUST provide a mobile dashboard showing lead count, pending jobs, delivered jobs, spend used, and the current default view.",
+      "source_line": 8,
+      "proof_class": "Q6",
+      "kind": "consequential",
+      "required_capabilities": [
+        "action.ready",
+        "effect.attempted",
+        "readback.independent"
+      ],
+      "consequential": true,
+      "external": true,
+      "human_boundary": "AUTHORIZATION"
+    },
+    {
+      "id": "R5",
+      "claim": "The user MUST be able to choose a low-risk default-view PREFERENCE through the 0\u20139 human-control system.",
+      "source_line": 9,
+      "proof_class": "Q4",
+      "kind": "preference",
+      "required_capabilities": [
+        "human.decision"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": "PREFERENCE"
+    },
+    {
+      "id": "R6",
+      "claim": "The system MUST predict the human 0\u20139 choice before displaying each human task and MUST learn from every press after the real outcome is joined.",
+      "source_line": 10,
+      "proof_class": "Q8",
+      "kind": "autonomy",
+      "required_capabilities": [
+        "human.policy.prediction",
+        "human.policy.calibration"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R7",
+      "claim": "Increasingly familiar low-risk PREFERENCE decisions MUST become eligible for local autonomy only after calibrated verified evidence.",
+      "source_line": 11,
+      "proof_class": "Q8",
+      "kind": "autonomy",
+      "required_capabilities": [
+        "human.policy.prediction",
+        "human.policy.calibration"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R8",
+      "claim": "SECRET, IDENTITY, PHYSICAL, and consequential AUTHORIZATION tasks MUST always require real human input even if the system predicts the answer perfectly.",
+      "source_line": 12,
+      "proof_class": "Q5",
+      "kind": "secret",
+      "required_capabilities": [
+        "human.decision"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": "SECRET"
+    },
+    {
+      "id": "R9",
+      "claim": "Provider credentials MUST enter only through a SECRET human task and MUST NOT be persisted in the product database, audit log, dashboard state, or ordinary trajectory logs.",
+      "source_line": 13,
+      "proof_class": "Q5",
+      "kind": "secret",
+      "required_capabilities": [
+        "human.decision"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": "SECRET"
+    },
+    {
+      "id": "R10",
+      "claim": "Creating an external provider account or completing KYC MUST be represented as an IDENTITY human task and MUST NOT auto-resolve.",
+      "source_line": 14,
+      "proof_class": "Q5",
+      "kind": "identity",
+      "required_capabilities": [
+        "human.decision"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": "IDENTITY"
+    },
+    {
+      "id": "R11",
+      "claim": "Dispatching a job MUST require QP-bound authority for the exact action before any external effect.",
+      "source_line": 15,
+      "proof_class": "Q6",
+      "kind": "consequential",
+      "required_capabilities": [
+        "action.ready",
+        "effect.attempted",
+        "readback.independent"
+      ],
+      "consequential": true,
+      "external": true,
+      "human_boundary": "AUTHORIZATION"
+    },
+    {
+      "id": "R12",
+      "claim": "A campaign MUST send AT MOST 3 messages and MUST spend AT MOST 0.50 USD in total, including across restart boundaries.",
+      "source_line": 16,
+      "proof_class": "Q6",
+      "kind": "consequential",
+      "required_capabilities": [
+        "action.ready",
+        "effect.attempted",
+        "readback.independent"
+      ],
+      "consequential": true,
+      "external": true,
+      "human_boundary": "AUTHORIZATION"
+    },
+    {
+      "id": "R13",
+      "claim": "Immediately after dispatch the local job MUST be `SENT_UNVERIFIED` and MUST NOT claim delivery from the same dispatch response.",
+      "source_line": 17,
+      "proof_class": "Q6",
+      "kind": "consequential",
+      "required_capabilities": [
+        "action.ready",
+        "effect.attempted",
+        "readback.independent"
+      ],
+      "consequential": true,
+      "external": true,
+      "human_boundary": "AUTHORIZATION"
+    },
+    {
+      "id": "R14",
+      "claim": "Delivery MUST become `DELIVERED` only after an independent provider-side readback finds the message.",
+      "source_line": 18,
+      "proof_class": "Q5",
+      "kind": "readback",
+      "required_capabilities": [
+        "probe.target",
+        "readback.independent"
+      ],
+      "consequential": false,
+      "external": true,
+      "human_boundary": null
+    },
+    {
+      "id": "R15",
+      "claim": "Every local state-changing operation MUST append a SHA-256 chained audit event whose chain MUST verify after restart.",
+      "source_line": 19,
+      "proof_class": "Q3",
+      "kind": "stateful-local",
+      "required_capabilities": [
+        "work.minimal_plan",
+        "artifact.candidate"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R16",
+      "claim": "Five implementation lanes MUST use the same ContractRoot and ProofRoot; invalid lanes MUST be rejected before cost ranking.",
+      "source_line": 20,
+      "proof_class": "Q2",
+      "kind": "local",
+      "required_capabilities": [
+        "work.minimal_plan",
+        "artifact.candidate"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R17",
+      "claim": "Run 2 MUST reuse a Run-1 artifact only when the artifact has a verified proof receipt and MUST keep the same ContractRoot and ProofRoot.",
+      "source_line": 21,
+      "proof_class": "Q7",
+      "kind": "learning",
+      "required_capabilities": [
+        "experiment.ranking",
+        "candidate.lesson"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    },
+    {
+      "id": "R18",
+      "claim": "FINAL ACCEPTANCE MUST produce a runnable finished product, an independent verification report, a QP receipt for the consequential action, the five-lane tournament, human-learning metrics, and a complete test journal.",
+      "source_line": 22,
+      "proof_class": "Q7",
+      "kind": "learning",
+      "required_capabilities": [
+        "experiment.ranking",
+        "candidate.lesson"
+      ],
+      "consequential": false,
+      "external": false,
+      "human_boundary": null
+    }
+  ]
+}

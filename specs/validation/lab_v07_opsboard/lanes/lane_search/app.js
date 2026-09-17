@@ -1,0 +1,1 @@
+fetch('/api/metrics').then(r=>r.json()).then(m=>{leads.textContent=m.leads;pending.textContent=m.pending_jobs;delivered.textContent=m.delivered_jobs;spend.textContent=m.spend_used.toFixed(2);view.textContent='View: '+m.default_view})

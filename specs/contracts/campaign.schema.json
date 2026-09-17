@@ -1,0 +1,7 @@
+{"$id": "agentcomfinal/contracts/campaign", "title": "Campaign",
+ "description": "Bound scarce-asset experiment: project + asset + objective + world.",
+ "type": "object", "required": ["campaign_id", "project", "scarce_asset", "objective", "world"],
+ "properties": {"campaign_id": {"type": "string"}, "project": {"type": "string"},
+  "scarce_asset": {"type": "string"}, "objective": {"type": "string"},
+  "world": {"enum": ["A_TRUTH", "B_DEMAND", "C_ECONOMIC", "D_SCARCE_STATE"]},
+  "strategic_ref": {"type": "string"}}}

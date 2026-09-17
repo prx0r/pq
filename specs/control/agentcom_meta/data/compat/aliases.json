@@ -1,0 +1,18 @@
+{
+  "schema":"agentcom.compat.aliases/0.1",
+  "aliases":{
+    "agentcom.cg":"processor.lookup.company_graph",
+    "qp.cg":"processor.simulate.world",
+    "qp.cg.world":"processor.analyze.problem_graph",
+    "agentcom.underengineer":"processor.plan.underengineer",
+    "agentcom.gitgoblin":"processor.reuse.gitgoblin",
+    "agentcom.qdw":"processor.route.qdw",
+    "agentcom.atask":"processor.execute.atask",
+    "agentcom.hloop":"processor.escalate.hloop",
+    "agentcom.oracle":"processor.probe.oracle",
+    "agentcom.seed0":"processor.experiment.seed0",
+    "agentcom.workerkit":"processor.harvest.workerkit"
+  },
+  "collision_policy":"legacy aliases are never resolved by basename; exact namespace required when an alias historically meant multiple things",
+  "known_collisions":[{"name":"cg","meanings":["company graph","evaluation/curriculum world","problem/causal graph"],"resolution":"use fully qualified processor ids"}]
+}
