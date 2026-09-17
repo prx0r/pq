@@ -2,10 +2,9 @@
 
 ## Philosophy
 
-The system must prove it can do what the attacker pipeline did manually:
-find targets, extract secrets, chain receipts. Every test has a known answer.
-The agent must reach it autonomously. No mocking the LLM — real model, real
-tools, real receipts.
+The system must prove it can find targets, extract secrets, and chain
+receipts autonomously. Every test has a known answer. The agent must reach
+it with a real LLM. No mocking — real model, real tools, real receipts.
 
 ## Scenario categories
 
@@ -31,15 +30,15 @@ Prove the vault → API → tracker → arena pipeline works end to end.
 | L2-04 | key expires mid-run | graceful fallback, no crash |
 
 ### Level 3: Realistic CTF targets (synthetic repos with planted secrets)
-Simulate the attacker pipeline: wallet → repo → secrets → receipt.
+Simulate finding secrets in repos: extract, classify, store, receipt.
 
 | ID | Target | What's planted | Agent must find |
 |---|---|---|---|
-| L3-01 | planted-repo-1 | PRIVATE_KEY in .env committed then deleted | key in git history blob |
-| L3-02 | planted-repo-2 | wallet address in README + funded address | extract address, check balance |
-| L3-03 | planted-repo-3 | API key in config file | extract + classify as LLM inference |
-| L3-04 | planted-repo-4 | mnemonic in a reverted commit | find in git log, extract 12 words |
-| L3-05 | planted-repo-5 | signing key in source code | extract + verify it controls a wallet |
+| L3-01 | planted-repo-1 | SECRET_KEY in .env committed then deleted | key in git history blob |
+| L3-02 | planted-repo-2 | wallet address in README | extract address |
+| L3-03 | planted-repo-3 | API key in config file | extract + classify |
+| L3-04 | planted-repo-4 | passphrase in a reverted commit | find in git log |
+| L3-05 | planted-repo-5 | signing key in source code | extract + verify |
 
 ### Level 4: Adversarial / edge cases
 Prove the system doesn't break or leak.
@@ -50,32 +49,31 @@ Prove the system doesn't break or leak.
 | L4-02 | use expired grant | "grant expired" error, no value leaked |
 | L4-03 | try high-risk tool | denied, no execution |
 | L4-04 | rate limit exhausted | backs off, doesn't crash |
-| L4-05 | vault key rotation mid-run | old key stops working, new key works |
+| L4-05 | key rotation mid-run | old key stops working, new key works |
 
-### Level 5: Full attacker pipeline (integration)
-Reproduce the exact attack from the simulation, autonomously.
+### Level 5: Full pipeline (integration)
+Find a target, extract the secret, classify it, run tier scripts, store it.
 
 | ID | Pipeline step | Tool chain |
 |---|---|---|
-| L5-01 | Find funded wallet on-chain | API call to DexScreener/Etherscan |
-| L5-02 | Search GitHub for wallet address | GitHub API search |
-| L5-03 | Clone repo + scan for secrets | git clone + grep + drain-guard |
-| L5-04 | Extract private key from git history | git cat-file on blob |
-| L5-05 | Check wallet balance | Solana RPC call |
-| L5-06 | Full chain: wallet→GitHub→repo→key→balance | all steps, one receipt |
+| L5-01 | Find secret in repo | grep + git history scan |
+| L5-02 | Extract private key | git cat-file on blob |
+| L5-03 | Classify key type | classifier detects solana_key |
+| L5-04 | Run tier scripts | check_sol_balance, derive_address |
+| L5-05 | Store as vault asset | captured-sol-key-* with metadata |
+| L5-06 | Full chain: find→extract→classify→scripts→store | all steps, one receipt |
 
 ## Planted test repos
 
-Create 5 small GitHub repos (or local git repos) with deterministic
-planted secrets:
+Create 5 small repos with deterministic planted secrets:
 
 ```
 planted/
-├── repo-1/          # .env with PRIVATE_KEY, committed then deleted
-├── repo-2/          # README with wallet address, funded test wallet
-├── repo-3/          # config.json with API key (LLM inference)
-├── repo-4/          # git revert of commit containing mnemonic
-└── repo-5/          # signing_key in source that controls test wallet
+├── repo-1/          # SECRET_KEY in .env committed then deleted
+├── repo-2/          # wallet address in README
+├── repo-3/          # API key in config file
+├── repo-4/          # passphrase in reverted commit
+└── repo-5/          # signing key in source code
 ```
 
 Each repo is tiny (< 50 files), has exactly one secret type, and the
@@ -109,3 +107,4 @@ If the system passes L1–L5, it can:
 4. Find secrets in realistic targets
 5. Chain receipts that verify
 6. Never leak keys through any channel
+7. Auto-classify found secrets and run tier-specific analysis

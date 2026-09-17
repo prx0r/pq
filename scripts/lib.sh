@@ -4,6 +4,7 @@
 set -euo pipefail
 
 PQ_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PQ_ROOT
 QP_BOT="${QP_BOT:-/home/ubuntu/qpbot}"
 RUNS="$PQ_ROOT/runs"
 mkdir -p "$RUNS"
