@@ -179,8 +179,6 @@ def test_worker_basic():
 
 def test_dashboard_mission_api_shape():
     """Verify the mission API returns correct JSON shape."""
-    from dashboard.server import Handler
-    # Just verify the imports work and the endpoint logic is sound
     from agentcom.missions import MissionControl
     mc = MissionControl()
     data = mc.list_missions()

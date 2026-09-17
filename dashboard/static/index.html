@@ -1,115 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pq agent</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pq</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font:13px/1.4 system-ui,sans-serif;background:#0d1117;color:#e6edf3;display:flex;height:100vh}
-#left{flex:2;display:flex;flex-direction:column;border-right:1px solid #21262d;min-width:0}
-#right{flex:1;min-width:320px;max-width:480px;overflow-y:auto;padding:10px;background:#161b22}
-#log{flex:1;overflow-y:auto;padding:14px}
-.msg{margin:0 0 8px}.msg.you{color:#79c0ff}.msg small{color:#7d8590;font-size:11px}
-.msg pre{background:#161b22;padding:6px;border-radius:4px;overflow-x:auto;font-size:12px;white-space:pre-wrap}
-#box{display:flex;padding:10px;gap:6px;border-top:1px solid #21262d}
-#box input{flex:1;padding:8px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:13px}
-button{padding:6px 12px;border-radius:4px;border:0;background:#238636;color:#fff;cursor:pointer;font-size:12px}
-button.ghost{background:#21262d}button.danger{background:#da3633}button.primary{background:#1f6feb}
-.card{border:1px solid #21262d;border-radius:6px;padding:8px;margin-bottom:8px;background:#0d1117}
-.card h3{margin:0 0 4px;font-size:12px;color:#7d8590;text-transform:uppercase;letter-spacing:.5px}
-.card p{margin:3px 0;font-size:12px}
-.tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600}
+body{margin:0;font:14px/1.5 system-ui,sans-serif;background:#0d1117;color:#e6edf3;display:flex;height:100vh}
+#chat{flex:2;display:flex;flex-direction:column;border-right:1px solid #21262d}
+#side{flex:1;min-width:300px;overflow-y:auto;padding:12px;background:#161b22}
+#log{flex:1;overflow-y:auto;padding:16px}
+.msg{margin-bottom:10px}.msg.you{color:#79c0ff}.msg small{color:#7d8590;font-size:12px}
+#box{display:flex;padding:12px;gap:8px;border-top:1px solid #21262d}
+#box input{flex:1;padding:10px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:inherit}
+button{padding:8px 14px;border-radius:6px;border:0;background:#238636;color:#fff;cursor:pointer;font-size:13px}
+button.ghost{background:#21262d}button.primary{background:#1f6feb}
+.card{border:1px solid #21262d;border-radius:6px;padding:8px;margin-bottom:8px}
+.card h3{margin:0 0 4px;font-size:12px;color:#7d8590}
+.card p{margin:2px 0;font-size:12px}
+.tag{padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600}
 .tag.queued{background:#1f6feb22;color:#58a6ff}.tag.running{background:#23863622;color:#3fb950}
 .tag.done{background:#238636;color:#fff}.tag.failed{background:#da3633;color:#fff}
-.tag.skipped{background:#d2992222;color:#d29922}
-.findings{font-size:11px;color:#7d8590;margin-top:4px}.findings li{margin:1px 0}
-textarea{width:100%;height:120px;padding:6px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:inherit;font:12px/1.3 monospace;resize:vertical}
-input[type=password],input[type=text].cfg{width:100%;padding:5px;margin:2px 0;border-radius:3px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:12px}
+.section{margin:14px 0 6px;font-size:11px;color:#484f58;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #21262d;padding-bottom:4px}
+textarea{width:100%;height:100px;padding:6px;border:1px solid #30363d;background:#0d1117;color:inherit;font:12px/1.3 monospace;border-radius:4px;resize:vertical}
+input.cfg{width:100%;padding:5px;margin:2px 0;border-radius:3px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:12px}
 label{font-size:10px;color:#7d8590;text-transform:uppercase}
-.section{margin:12px 0 6px;font-size:11px;color:#484f58;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #21262d;padding-bottom:4px}
-#missions{max-height:35vh;overflow-y:auto}
-.mission-input{display:flex;gap:4px;margin:6px 0}
-.mission-input input{flex:1;padding:6px;border-radius:3px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:12px}
-@media(max-width:800px){body{flex-direction:column}#right{max-width:none;border-top:1px solid #21262d}}
+.mi{display:flex;gap:4px;margin:6px 0}.mi input{flex:1;padding:6px;border-radius:3px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:12px}
+@media(max-width:800px){body{flex-direction:column}#side{max-width:none;border-top:1px solid #21262d}}
 </style>
 </head>
 <body>
-<div id="left">
+<div id="chat">
   <div id="log"></div>
-  <div id="box"><input id="in" placeholder="talk to the agent…" autocomplete="off"><button onclick="send()">Send</button></div>
+  <div id="box"><input id="in" placeholder="talk to Muse…" autocomplete="off"><button onclick="send()">Send</button></div>
 </div>
-<div id="right">
+<div id="side">
   <div class="section">System prompt</div>
-  <div class="card">
-    <textarea id="sysprompt" placeholder="Loading…"></textarea>
-    <div style="display:flex;gap:4px;margin-top:4px">
-      <button class="ghost" onclick="loadPrompt()">Reload</button>
-      <button class="primary" onclick="savePrompt()">Save</button>
-      <span id="prompt-status" style="font-size:11px;color:#7d8590;align-self:center"></span>
-    </div>
+  <textarea id="sys"></textarea>
+  <div style="display:flex;gap:4px;margin-top:4px">
+    <button class="ghost" onclick="lp()">Load</button>
+    <button class="primary" onclick="sp()">Save</button>
+    <span id="ps" style="font-size:11px;color:#7d8590;align-self:center"></span>
   </div>
 
-  <div class="section">Sub-agent missions</div>
-  <div class="mission-input">
-    <input id="mission-obj" placeholder="e.g. find whale wallets on ETH">
-    <button class="primary" onclick="dispatchMission()">Dispatch</button>
+  <div class="section">Dispatch</div>
+  <div class="mi">
+    <input id="mo" placeholder="e.g. find whale wallets">
+    <button class="primary" onclick="dm()">Go</button>
   </div>
+
+  <div class="section">Missions</div>
   <div id="missions"></div>
 
-  <div class="section">Prizes captured</div>
+  <div class="section">Prizes</div>
   <div id="prizes"></div>
+
+  <div class="section">Seen wallets</div>
+  <div id="seen"></div>
 
   <div class="section">Config</div>
   <div class="card">
-    <label>Model</label>
-    <input id="model" class="cfg" type="text" placeholder="muse-spark-1.3-contributor">
-    <label>Base URL</label>
-    <input id="base" class="cfg" type="text" placeholder="https://opencode.ai/zen/go/v1">
-    <button class="ghost" onclick="saveProv()">Save</button>
-    <div style="margin-top:6px">
-      <label>API key</label>
-      <input id="key" type="password" placeholder="paste key" autocomplete="off">
-      <button onclick="saveKey()" style="margin-top:2px">Store in vault</button>
-    </div>
-    <p id="keystate" style="font-size:11px;color:#7d8590"></p>
+    <label>Model</label><input id="model" class="cfg" placeholder="muse-spark-1.3-contributor">
+    <label>Base URL</label><input id="base" class="cfg" placeholder="https://opencode.ai/zen/go/v1">
+    <button class="ghost" onclick="sp2()">Save</button>
+    <div style="margin-top:6px"><label>API key</label>
+    <input id="key" type="password" placeholder="paste key" autocomplete="off">
+    <button onclick="sk()" style="margin-top:2px">Store</button></div>
+    <p id="ks" style="font-size:11px;color:#7d8590"></p>
   </div>
-
-  <div class="section">H-tasks</div>
-  <div id="tasks"></div>
-
-  <div class="section">RSI insights</div>
-  <div class="card"><pre id="rsi" style="font-size:11px;color:#7d8590;margin:0">Loading…</pre></div>
 </div>
 <script>
-const tok=new URLSearchParams(location.search).get("token")||"";
-const api=(m,p,b)=>fetch(p+"?token="+encodeURIComponent(tok),{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined}).then(r=>r.json());
-const log=document.getElementById("log"),box=document.getElementById("in");
-
-function say(who,text){const d=document.createElement("div");d.className="msg"+(who==="you"?" you":"");d.innerHTML="<small>"+who+"</small><br>"+text.replace(/</g,"&lt;");log.appendChild(d);log.scrollTop=log.scrollHeight}
-
-async function send(){const v=box.value.trim();if(!v)return;box.value="";say("you",v);say("…","thinking");try{const r=await api("POST","/api/chat",{message:v});log.lastChild.remove();say("agent",r.reply||"(empty)")}catch(e){log.lastChild.remove();say("agent","error: "+e)}}
-box.addEventListener("keydown",e=>{if(e.key==="Enter")send()});
-
-async function loadPrompt(){try{const r=await api("GET","/api/system-prompt");document.getElementById("sysprompt").value=r.prompt||""}catch(e){}}
-async function savePrompt(){const p=document.getElementById("sysprompt").value;try{await api("POST","/api/system-prompt",{prompt:p});document.getElementById("prompt-status").textContent="saved";setTimeout(()=>document.getElementById("prompt-status").textContent="",2000)}catch(e){document.getElementById("prompt-status").textContent="error"}}
-
-async function dispatchMission(){const obj=document.getElementById("mission-obj").value.trim();if(!obj)return;document.getElementById("mission-obj").value="";say("mission","dispatching: "+obj);try{const r=await api("POST","/api/missions/dispatch",{objective=obj,max_turns:8});if(r.ok)say("mission","queued as "+r.mission_id);else say("mission","failed: "+r.error)}catch(e){say("mission","error: "+e)}loadMissions()}
-
-async function loadMissions(){try{const r=await api("GET","/api/missions");const el=document.getElementById("missions");el.innerHTML="";const s=r.summary||{};if(s.total>0){const p=document.createElement("p");p.style.cssText="font-size:11px;color:#7d8590;margin:0 0 6px";p.textContent=s.total+" missions, "+(s.total_findings||0)+" findings"+(s.by_status?.running?" · "+s.by_status.running+" running":"");el.appendChild(p)}(r.missions||[]).slice(0,8).forEach(m=>{const c=document.createElement("div");c.className="card";let h="<h3>"+m.id+' <span class="tag '+m.status+'">'+m.status+"</span></h3>";h+="<p>"+m.objective.slice(0,100)+"</p>";if(m.findings&&m.findings.length>0){h+='<ul class="findings">';m.findings.slice(0,3).forEach(f=>{h+="<li>"+(f.tool==="summary"?"summary":f.tool)+"</li>"});h+="</ul>"}c.innerHTML=h;el.appendChild(c)})}catch(e){}}
-
-async function loadPrizes(){try{const r=await api("GET","/api/prizes");const el=document.getElementById("prizes");el.innerHTML="";const s=r.summary||{};if(s.total>0){const p=document.createElement("p");p.style.cssText="font-size:11px;color:#7d8590;margin:0 0 6px";p.textContent=s.total+" prizes · $"+s.total_usd.toLocaleString()+" total · "+JSON.stringify(s.by_chain);el.appendChild(p)}(r.prizes||[]).slice(0,5).forEach(p=>{const c=document.createElement("div");c.className="card";c.innerHTML="<p>"+p.chain+" · $"+p.balance_usd.toLocaleString()+" · "+(p.key_type||"?")+(p.github_repos?.length?" · "+p.github_repos.length+" repos":"")+(p.ens_name?" · "+p.ens_name:"")+"</p>";el.appendChild(c)})}catch(e){}}
-
-async function loadTasks(){try{const tasks=await api("GET","/api/tasks");const el=document.getElementById("tasks");el.innerHTML="";tasks.filter(t=>t.state!=="answered"&&t.state!=="expired").forEach(t=>{const c=document.createElement("div");c.className="card";let h="<h3>"+t.kind+"</h3><p>"+t.question.replace(/</g,"&lt;")+"</p>";if(t.kind==="confirm"){h+='<button onclick="answer(\''+t.task_id+"','approve','')\">Approve</button> <button class=\"danger\" onclick=\"answer('"+t.task_id+"','reject','')\">Reject</button>"}c.innerHTML=h;el.appendChild(c)})}catch(e){}}
-
-async function loadRSI(){try{const r=await api("GET","/api/rsi");document.getElementById("rsi").textContent=r.text||"No data yet"}catch(e){}}
-
-async function answer(id,value){await api("POST","/api/answer",{task_id:id,value});loadTasks()}
-async function saveProv(){await api("POST","/api/provider",{base_url:document.getElementById("base").value,model:document.getElementById("model").value});say("agent","provider saved.")}
-async function saveKey(){const k=document.getElementById("key");if(!k.value)return;await api("POST","/api/vault-store",{name:"LLM_KEY",value:k.value,scope:"chat",ttl_s:86400});k.value="";document.getElementById("keystate").textContent="stored in vault.";say("agent","key stored.")}
-
-loadPrompt();loadTasks();loadMissions();loadPrizes();loadRSI();
-setInterval(()=>{loadTasks();loadMissions();loadPrizes();loadRSI()},8000);
+const T=new URLSearchParams(location.search).get("token")||"";
+const A=(m,p,b)=>fetch(p+"?token="+encodeURIComponent(T),{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined}).then(r=>r.json());
+const L=document.getElementById("log"),B=document.getElementById("in");
+function S(w,t){const d=document.createElement("div");d.className="msg"+(w==="you"?" you":"");d.innerHTML="<small>"+w+"</small><br>"+t.replace(/</g,"&lt;");L.appendChild(d);L.scrollTop=L.scrollHeight}
+async function send(){const v=B.value.trim();if(!v)return;B.value="";S("you",v);S("…","thinking");try{const r=await A("POST","/api/chat",{message:v});L.lastChild.remove();S("muse",r.reply||"(empty)")}catch(e){L.lastChild.remove();S("err",e)}}
+B.onkeydown=e=>{if(e.key==="Enter")send()};
+async function lp(){try{const r=await A("GET","/api/system-prompt");document.getElementById("sys").value=r.prompt||""}catch(e){}}
+async function sp(){await A("POST","/api/system-prompt",{prompt:document.getElementById("sys").value});document.getElementById("ps").textContent="saved";setTimeout(()=>document.getElementById("ps").textContent="",2e3)}
+async function dm(){const o=document.getElementById("mo").value.trim();if(!o)return;document.getElementById("mo").value="";S("dispatch",o);const r=await A("POST","/api/missions/dispatch",{objective:o,max_turns:8});S("mission",r.ok?"queued "+r.mission_id:"fail: "+r.error);lm()}
+async function lm(){try{const r=await A("GET","/api/missions");const e=document.getElementById("missions");e.innerHTML="";(r.missions||[]).slice(0,6).forEach(m=>{const c=document.createElement("div");c.className="card";c.innerHTML='<h3>'+m.id+' <span class="tag '+m.status+'">'+m.status+'</span></h3><p>'+m.objective.slice(0,80)+'</p>';e.appendChild(c)})}catch(e){}}
+async function lpr(){try{const r=await A("GET","/api/prizes");const e=document.getElementById("prizes");e.innerHTML="";const s=r.summary||{};if(s.total)e.innerHTML='<p style="font-size:12px;color:#7d8590">'+s.total+' prizes · $'+s.total_usd.toLocaleString()+'</p>';(r.prizes||[]).slice(0,5).forEach(p=>{const c=document.createElement("div");c.className="card";c.innerHTML='<p>'+p.chain+' · $'+p.balance_usd.toLocaleString()+(p.ens_name?' · '+p.ens_name:'')+(p.github_repos?.length?' · '+p.github_repos.length+' repos':'')+'</p>';e.appendChild(c)})}catch(e){}}
+async function ls(){try{const r=await A("GET","/api/seen");const e=document.getElementById("seen");e.innerHTML='<p style="font-size:12px;color:#7d8590">'+r.stats.total+' wallets · '+r.stats.with_github+' with github · '+r.stats.with_prize+' with prize</p>'}catch(e){}}
+async function sp2(){await A("POST","/api/provider",{base_url:document.getElementById("base").value,model:document.getElementById("model").value});S("agent","provider saved")}
+async function sk(){const k=document.getElementById("key");if(!k.value)return;await A("POST","/api/vault-store",{name:"LLM_KEY",value:k.value});k.value="";document.getElementById("ks").textContent="stored";S("agent","key stored")}
+lp();lm();lpr();ls();
+setInterval(()=>{lm();lpr();ls()},8e3);
 </script>
 </body>
 </html>

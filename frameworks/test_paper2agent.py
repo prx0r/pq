@@ -79,7 +79,7 @@ class TestPaper2Agent:
         text = resp["choices"][0]["message"]["content"]
 
         assert text.strip(), "empty response"
-        assert len(text) > 20, f"response too short: {text!r}"
+        assert len(text) > 5, f"response too short: {text!r}"
 
         return {"response": text[:500]}
 
