@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 # smoke.sh — fast health check for fresh agents. No spend, no repo writes
-# outside /tmp. Exits non-zero on first failure.
+# outside /tmp. Exits non-zero on first failure. Logs result to runs/.
 #   ./scripts/smoke.sh
 source "$(dirname "$0")/lib.sh"
 need python3
 
+RUN_ID="$(date -u +%Y%m%d-%H%M%S)"
+SMOKE_LOG="$RUNS/smoke-${RUN_ID}.jsonl"
 fail=0
+checks=0
+passed=0
+
 check() { # <name> <command...>
   local name="$1"; shift
-  if "$@" >/dev/null 2>&1; then echo "ok   $name";
-  else echo "FAIL $name"; fail=1; fi
+  checks=$((checks + 1))
+  if "$@" >/dev/null 2>&1; then
+    echo "ok   $name"
+    log_event "smoke-${RUN_ID}.jsonl" \
+      "{\"ts\":$(date +%s),\"run_id\":\"$RUN_ID\",\"check\":\"$name\",\"pass\":true}"
+    passed=$((passed + 1))
+  else
+    echo "FAIL $name"
+    log_event "smoke-${RUN_ID}.jsonl" \
+      "{\"ts\":$(date +%s),\"run_id\":\"$RUN_ID\",\"check\":\"$name\",\"pass\":false}"
+    fail=1
+  fi
 }
 
 check "pq imports" python3 -c "
@@ -42,5 +57,10 @@ x = Daemon(); x.submit({}); x.tick(lambda j: 1 / 0)
 assert x.queue[-1]['state'] == 'UNKNOWN'
 print('ok   stack checks (queue/spend/daemon)')
 EOF
+
+# Log summary.
+log_event "smoke-${RUN_ID}.jsonl" \
+  "{\"ts\":$(date +%s),\"run_id\":\"$RUN_ID\",\"event\":\"summary\",\"checks\":$checks,\"passed\":$passed,\"fail\":$fail}"
+
 [ "$fail" = 0 ] || exit 1
 echo "smoke: ALL GREEN"

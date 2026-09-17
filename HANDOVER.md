@@ -4,15 +4,21 @@ This document explains the entire system to a fresh agent. Read this first.
 
 ## What is pq
 
-An autonomous red-team CTF system. Agents find targets, extract secrets,
-chain receipts. Vault stores keys. Usage is tracked. Rate limits and circuit
-breakers prevent burn. Everything is modular and testable.
+**pq is the live-testing companion to qpbot.** qpbot owns the core system
+(arena, ledger, agents, vault, tournament, autopilot — 56 unit tests, zero
+external dependencies). pq pulls from qpbot and adds real LLM calls against
+Muse (`muse-spark-1.3-contributor` via OpenCode Go). If you want the core,
+go to `qpbot/`. If you want to exercise it live, you're here.
+
+Agents find targets, extract secrets, chain receipts. Vault stores keys.
+Usage is tracked. Rate limits and circuit breakers prevent burn. Everything
+is modular and testable.
 
 ## Where things live
 
 ```
 pq/
-├── core/              The running game (Python, stdlib only)
+├── core/              The running game (copied from qpbot, stdlib only)
 │   ├── arena.py       3 demo targets, server-side verifier
 │   ├── ledger.py      hash-chained event store
 │   ├── agents.py      red-team loop (perceive → act → verify)
@@ -25,24 +31,28 @@ pq/
 ├── agentcom/          Control plane (Python)
 │   ├── vault/         encrypted store + enforcement
 │   │   ├── store.py   secrets, grants, prizes, captures
-│   │   ├── classifier.py  detect key type + assign tier
-│   │   ├── scripts.py     tier-specific runners
+│   │   ├── broker.py  hides capabilities from model context
 │   │   ├── ratelimit.py   three-tier rate limiter
 │   │   ├── circuitbreaker.py  three-state breaker
 │   │   ├── asynclog.py    buffered usage logger
 │   │   └── tracker.py     per-model pricing
+│   ├── authority/     Ed25519 grants (SQLite, atomic consume)
+│   ├── approvals/     out-of-band approval tokens
 │   ├── htasks/        human work queue
+│   ├── hloop/         decision log + calibration
 │   ├── lanes/         Seed0 frozen-root runner
 │   ├── ledger/        spend tracking
+│   ├── memory/        cross-run experience bank
 │   ├── services/      daemon (writer exclusivity)
 │   ├── interfaces/    ACP routing + AgentDeck bridge
-│   └── runtime/       Pi lane specs
+│   └── runtime/       Pi lane specs + consequence gate
 │
 ├── connectors/        Pi SDK integration (TypeScript)
 ├── dashboard/         web UI (chat + H-task rail)
+├── scanners/          deterministic recon (no LLM spend)
 ├── harness.py         live LLM test runner
 ├── scripts/           shell scripts for automation
-├── tests/             56 tests
+├── tests/             live LLM tests (call Muse, spend budget)
 ├── specs/             full canonical tree (QP, processors, contracts)
 ├── docs/              architecture, playbook, privacy
 └── planted-repos/     test targets (local, not in git)
@@ -51,7 +61,7 @@ pq/
 ## Quick start
 
 ```bash
-python3 -m pytest tests/ -q                    # 56 tests, no keys needed
+python3 -m pytest tests/ -q                    # live LLM tests (spend budget)
 python3 -m core.cli tournament                 # 3 lanes compete
 python3 -m core.cli autopilot --rounds 3       # continuous loop
 python3 -m core.cli vault-find --kind llm      # active keys

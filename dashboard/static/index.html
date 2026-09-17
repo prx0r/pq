@@ -3,101 +3,113 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>qpbot</title>
+<title>pq agent</title>
 <style>
-  * { box-sizing: border-box; }
-  body { margin: 0; font: 15px/1.45 system-ui, sans-serif; background: #101418; color: #e8ecef; display: flex; height: 100vh; }
-  #chat { flex: 2; display: flex; flex-direction: column; border-right: 1px solid #2a3138; min-width: 0; }
-  #rail { flex: 1; min-width: 280px; max-width: 460px; overflow-y: auto; padding: 12px; background: #151b21; }
-  #log { flex: 1; overflow-y: auto; padding: 16px; }
-  .msg { margin: 0 0 12px; } .msg.you { color: #9fd0ff; } .msg small { color: #7d8892; }
-  #box { display: flex; padding: 12px; gap: 8px; }
-  #box input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a3138; background: #1a2129; color: inherit; }
-  button { padding: 10px 14px; border-radius: 8px; border: 0; background: #2f6fed; color: #fff; cursor: pointer; }
-  button.ghost { background: #2a3138; } button.danger { background: #b33636; }
-  .card { border: 1px solid #2a3138; border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #1a2129; }
-  .card h3 { margin: 0 0 6px; font-size: 14px; } .card p { margin: 6px 0; font-size: 14px; }
-  .pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 8px 0; }
-  .pad button { padding: 12px 0; font-size: 16px; }
-  .pred { outline: 2px solid #2f6fed; }
-  input[type=password], input[type=text].cfg { width: 100%; padding: 8px; margin: 4px 0; border-radius: 6px; border: 1px solid #2a3138; background: #101418; color: inherit; }
-  label { font-size: 12px; color: #7d8892; }
-  @media (max-width: 700px) { body { flex-direction: column; } #rail { max-width: none; border-top: 1px solid #2a3138; } }
+*{box-sizing:border-box}
+body{margin:0;font:13px/1.4 system-ui,sans-serif;background:#0d1117;color:#e6edf3;display:flex;height:100vh}
+#left{flex:2;display:flex;flex-direction:column;border-right:1px solid #21262d;min-width:0}
+#right{flex:1;min-width:320px;max-width:480px;overflow-y:auto;padding:10px;background:#161b22}
+#log{flex:1;overflow-y:auto;padding:14px}
+.msg{margin:0 0 8px}.msg.you{color:#79c0ff}.msg small{color:#7d8590;font-size:11px}
+.msg pre{background:#161b22;padding:6px;border-radius:4px;overflow-x:auto;font-size:12px;white-space:pre-wrap}
+#box{display:flex;padding:10px;gap:6px;border-top:1px solid #21262d}
+#box input{flex:1;padding:8px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:13px}
+button{padding:6px 12px;border-radius:4px;border:0;background:#238636;color:#fff;cursor:pointer;font-size:12px}
+button.ghost{background:#21262d}button.danger{background:#da3633}button.primary{background:#1f6feb}
+.card{border:1px solid #21262d;border-radius:6px;padding:8px;margin-bottom:8px;background:#0d1117}
+.card h3{margin:0 0 4px;font-size:12px;color:#7d8590;text-transform:uppercase;letter-spacing:.5px}
+.card p{margin:3px 0;font-size:12px}
+.tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600}
+.tag.queued{background:#1f6feb22;color:#58a6ff}.tag.running{background:#23863622;color:#3fb950}
+.tag.done{background:#238636;color:#fff}.tag.failed{background:#da3633;color:#fff}
+.tag.skipped{background:#d2992222;color:#d29922}
+.findings{font-size:11px;color:#7d8590;margin-top:4px}.findings li{margin:1px 0}
+textarea{width:100%;height:120px;padding:6px;border-radius:4px;border:1px solid #30363d;background:#0d1117;color:inherit;font:12px/1.3 monospace;resize:vertical}
+input[type=password],input[type=text].cfg{width:100%;padding:5px;margin:2px 0;border-radius:3px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:12px}
+label{font-size:10px;color:#7d8590;text-transform:uppercase}
+.section{margin:12px 0 6px;font-size:11px;color:#484f58;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #21262d;padding-bottom:4px}
+#missions{max-height:35vh;overflow-y:auto}
+.mission-input{display:flex;gap:4px;margin:6px 0}
+.mission-input input{flex:1;padding:6px;border-radius:3px;border:1px solid #30363d;background:#0d1117;color:inherit;font-size:12px}
+@media(max-width:800px){body{flex-direction:column}#right{max-width:none;border-top:1px solid #21262d}}
 </style>
 </head>
 <body>
-<div id="chat">
+<div id="left">
   <div id="log"></div>
-  <div id="box"><input id="in" placeholder="type here…" autocomplete="off"><button onclick="send()">Send</button></div>
+  <div id="box"><input id="in" placeholder="talk to the agent…" autocomplete="off"><button onclick="send()">Send</button></div>
 </div>
-<div id="rail"><h3 style="margin-top:0">H-task rail</h3><div id="tasks"></div>
-  <div class="card"><h3>Provider + key</h3>
-    <label>OpenAI-compatible base URL</label>
-    <input id="base" class="cfg" type="text" placeholder="https://api.openai.com/v1">
-    <label>Model</label>
-    <input id="model" class="cfg" type="text" placeholder="vendor/model">
-    <button class="ghost" onclick="saveProv()">Save provider</button>
-    <label>Paste key (goes to vault, never chat)</label>
-    <input id="key" type="password" placeholder="sk-…" autocomplete="off">
-    <button onclick="saveKey()">Store key in vault</button>
-    <p id="keystate" style="font-size:13px"></p>
+<div id="right">
+  <div class="section">System prompt</div>
+  <div class="card">
+    <textarea id="sysprompt" placeholder="Loading…"></textarea>
+    <div style="display:flex;gap:4px;margin-top:4px">
+      <button class="ghost" onclick="loadPrompt()">Reload</button>
+      <button class="primary" onclick="savePrompt()">Save</button>
+      <span id="prompt-status" style="font-size:11px;color:#7d8590;align-self:center"></span>
+    </div>
   </div>
+
+  <div class="section">Sub-agent missions</div>
+  <div class="mission-input">
+    <input id="mission-obj" placeholder="e.g. find whale wallets on ETH">
+    <button class="primary" onclick="dispatchMission()">Dispatch</button>
+  </div>
+  <div id="missions"></div>
+
+  <div class="section">Prizes captured</div>
+  <div id="prizes"></div>
+
+  <div class="section">Config</div>
+  <div class="card">
+    <label>Model</label>
+    <input id="model" class="cfg" type="text" placeholder="muse-spark-1.3-contributor">
+    <label>Base URL</label>
+    <input id="base" class="cfg" type="text" placeholder="https://opencode.ai/zen/go/v1">
+    <button class="ghost" onclick="saveProv()">Save</button>
+    <div style="margin-top:6px">
+      <label>API key</label>
+      <input id="key" type="password" placeholder="paste key" autocomplete="off">
+      <button onclick="saveKey()" style="margin-top:2px">Store in vault</button>
+    </div>
+    <p id="keystate" style="font-size:11px;color:#7d8590"></p>
+  </div>
+
+  <div class="section">H-tasks</div>
+  <div id="tasks"></div>
+
+  <div class="section">RSI insights</div>
+  <div class="card"><pre id="rsi" style="font-size:11px;color:#7d8590;margin:0">Loading…</pre></div>
 </div>
 <script>
-const tok = new URLSearchParams(location.search).get("token") || "";
-const api = (m, p, b) => fetch(p + "?token=" + encodeURIComponent(tok), {
-  method: m, headers: {"Content-Type": "application/json"},
-  body: b ? JSON.stringify(b) : undefined }).then(r => r.json());
-const log = document.getElementById("log"), box = document.getElementById("in");
-function say(who, text) {
-  const d = document.createElement("div");
-  d.className = "msg" + (who === "you" ? " you" : "");
-  d.innerHTML = "<small>" + who + "</small><br>" + text.replace(/</g, "&lt;");
-  log.appendChild(d); log.scrollTop = log.scrollHeight;
-}
-async function send() {
-  const v = box.value.trim(); if (!v) return; box.value = "";
-  say("you", v); say("…", "thinking");
-  try { const r = await api("POST", "/api/chat", {message: v});
-    log.lastChild.remove(); say("agent", r.reply || "(empty)"); }
-  catch (e) { log.lastChild.remove(); say("agent", "error: " + e); }
-}
-box.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
-async function load() {
-  try {
-    const tasks = await api("GET", "/api/tasks");
-    const el = document.getElementById("tasks"); el.innerHTML = "";
-    tasks.filter(t => t.state !== "answered" && t.state !== "expired").forEach(t => {
-      const c = document.createElement("div"); c.className = "card";
-      let h = "<h3>" + t.kind + " · " + t.task_id + "</h3><p>" + t.question.replace(/</g, "&lt;") + "</p>";
-      if (t.prediction) h += "<p>prediction: <b>" + t.prediction + "</b> (" + t.confidence + ")</p>";
-      if (t.kind === "digit") {
-        h += '<div class="pad">' + [0,1,2,3,4,5,6,7,8,9].map(d =>
-          '<button class="' + (String(d) === String(t.prediction) ? "pred" : "ghost") + '" onclick="answer(\'' + t.task_id + "','" + d + "','" + (t.prediction || "") + '\')">' + d + "</button>").join("") + "</div>";
-      } else if (t.kind === "confirm") {
-        h += '<button onclick="answer(\'' + t.task_id + "','approve','')\">Approve</button> <button class="danger" onclick="answer(\'' + t.task_id + "','reject','')\">Reject</button>";
-      } else if (t.kind === "secret") {
-        h += '<input type="password" id="s-' + t.task_id + '" placeholder="paste secret">';
-      }
-      c.innerHTML = h; el.appendChild(c);
-    });
-  } catch (e) {}
-}
-async function answer(id, value, pred) {
-  await api("POST", "/api/answer", {task_id: id, value, prediction: pred});
-  load();
-}
-async function saveProv() {
-  await api("POST", "/api/provider", {base_url: document.getElementById("base").value, model: document.getElementById("model").value});
-  say("agent", "provider saved.");
-}
-async function saveKey() {
-  const k = document.getElementById("key"); if (!k.value) return;
-  await api("POST", "/api/vault-store", {name: "LLM_KEY", value: k.value, scope: "chat", ttl_s: 86400});
-  k.value = ""; document.getElementById("keystate").textContent = "stored in vault.";
-  say("agent", "key stored. chat is live.");
-}
-load(); setInterval(load, 3000);
+const tok=new URLSearchParams(location.search).get("token")||"";
+const api=(m,p,b)=>fetch(p+"?token="+encodeURIComponent(tok),{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined}).then(r=>r.json());
+const log=document.getElementById("log"),box=document.getElementById("in");
+
+function say(who,text){const d=document.createElement("div");d.className="msg"+(who==="you"?" you":"");d.innerHTML="<small>"+who+"</small><br>"+text.replace(/</g,"&lt;");log.appendChild(d);log.scrollTop=log.scrollHeight}
+
+async function send(){const v=box.value.trim();if(!v)return;box.value="";say("you",v);say("…","thinking");try{const r=await api("POST","/api/chat",{message:v});log.lastChild.remove();say("agent",r.reply||"(empty)")}catch(e){log.lastChild.remove();say("agent","error: "+e)}}
+box.addEventListener("keydown",e=>{if(e.key==="Enter")send()});
+
+async function loadPrompt(){try{const r=await api("GET","/api/system-prompt");document.getElementById("sysprompt").value=r.prompt||""}catch(e){}}
+async function savePrompt(){const p=document.getElementById("sysprompt").value;try{await api("POST","/api/system-prompt",{prompt:p});document.getElementById("prompt-status").textContent="saved";setTimeout(()=>document.getElementById("prompt-status").textContent="",2000)}catch(e){document.getElementById("prompt-status").textContent="error"}}
+
+async function dispatchMission(){const obj=document.getElementById("mission-obj").value.trim();if(!obj)return;document.getElementById("mission-obj").value="";say("mission","dispatching: "+obj);try{const r=await api("POST","/api/missions/dispatch",{objective=obj,max_turns:8});if(r.ok)say("mission","queued as "+r.mission_id);else say("mission","failed: "+r.error)}catch(e){say("mission","error: "+e)}loadMissions()}
+
+async function loadMissions(){try{const r=await api("GET","/api/missions");const el=document.getElementById("missions");el.innerHTML="";const s=r.summary||{};if(s.total>0){const p=document.createElement("p");p.style.cssText="font-size:11px;color:#7d8590;margin:0 0 6px";p.textContent=s.total+" missions, "+(s.total_findings||0)+" findings"+(s.by_status?.running?" · "+s.by_status.running+" running":"");el.appendChild(p)}(r.missions||[]).slice(0,8).forEach(m=>{const c=document.createElement("div");c.className="card";let h="<h3>"+m.id+' <span class="tag '+m.status+'">'+m.status+"</span></h3>";h+="<p>"+m.objective.slice(0,100)+"</p>";if(m.findings&&m.findings.length>0){h+='<ul class="findings">';m.findings.slice(0,3).forEach(f=>{h+="<li>"+(f.tool==="summary"?"summary":f.tool)+"</li>"});h+="</ul>"}c.innerHTML=h;el.appendChild(c)})}catch(e){}}
+
+async function loadPrizes(){try{const r=await api("GET","/api/prizes");const el=document.getElementById("prizes");el.innerHTML="";const s=r.summary||{};if(s.total>0){const p=document.createElement("p");p.style.cssText="font-size:11px;color:#7d8590;margin:0 0 6px";p.textContent=s.total+" prizes · $"+s.total_usd.toLocaleString()+" total · "+JSON.stringify(s.by_chain);el.appendChild(p)}(r.prizes||[]).slice(0,5).forEach(p=>{const c=document.createElement("div");c.className="card";c.innerHTML="<p>"+p.chain+" · $"+p.balance_usd.toLocaleString()+" · "+(p.key_type||"?")+(p.github_repos?.length?" · "+p.github_repos.length+" repos":"")+(p.ens_name?" · "+p.ens_name:"")+"</p>";el.appendChild(c)})}catch(e){}}
+
+async function loadTasks(){try{const tasks=await api("GET","/api/tasks");const el=document.getElementById("tasks");el.innerHTML="";tasks.filter(t=>t.state!=="answered"&&t.state!=="expired").forEach(t=>{const c=document.createElement("div");c.className="card";let h="<h3>"+t.kind+"</h3><p>"+t.question.replace(/</g,"&lt;")+"</p>";if(t.kind==="confirm"){h+='<button onclick="answer(\''+t.task_id+"','approve','')\">Approve</button> <button class=\"danger\" onclick=\"answer('"+t.task_id+"','reject','')\">Reject</button>"}c.innerHTML=h;el.appendChild(c)})}catch(e){}}
+
+async function loadRSI(){try{const r=await api("GET","/api/rsi");document.getElementById("rsi").textContent=r.text||"No data yet"}catch(e){}}
+
+async function answer(id,value){await api("POST","/api/answer",{task_id:id,value});loadTasks()}
+async function saveProv(){await api("POST","/api/provider",{base_url:document.getElementById("base").value,model:document.getElementById("model").value});say("agent","provider saved.")}
+async function saveKey(){const k=document.getElementById("key");if(!k.value)return;await api("POST","/api/vault-store",{name:"LLM_KEY",value:k.value,scope:"chat",ttl_s:86400});k.value="";document.getElementById("keystate").textContent="stored in vault.";say("agent","key stored.")}
+
+loadPrompt();loadTasks();loadMissions();loadPrizes();loadRSI();
+setInterval(()=>{loadTasks();loadMissions();loadPrizes();loadRSI()},8000);
 </script>
 </body>
 </html>

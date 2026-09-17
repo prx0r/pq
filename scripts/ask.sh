@@ -11,14 +11,15 @@ cd "$PQ_ROOT"
 python3 - "$@" <<'EOF'
 import sys, os, time, urllib.error
 sys.path.insert(0, os.environ['PQ_ROOT'])
+import pqconfig as cfg
 from agentcom.vault.store import Vault
 from agentcom.vault.tracker import cost_minor
 from agentcom.vault.asynclog import UsageLogger
 from harness import call_api, _spend_ok
 
 prompt = sys.argv[1]
-model = os.environ['PQ_MODEL']
-vault = Vault(os.path.expanduser('~/.qpbot/vault.json'))
+model = cfg.llm_model()
+vault = Vault(cfg.vault_path())
 if not _spend_ok(vault):
     print('REFUSED: spend cap reached', file=sys.stderr); sys.exit(3)
 cands = sorted(vault.find(kind='llm-inference', tier='paid'),
@@ -47,8 +48,7 @@ u = resp.get('usage', {})
 ti, to = u.get('prompt_tokens', 0), u.get('completion_tokens', 0)
 text = (resp['choices'][0]['message']['content'] or '')
 lg = UsageLogger(vault=vault,
-                 log_path=os.path.join(os.environ['PQ_ROOT'], 'runs',
-                                        'llm-runs.jsonl'),
+                 log_path=os.path.join(cfg.runs_dir(), 'llm-runs.jsonl'),
                  buffer_size=100, flush_interval_s=1)
 lg.log(pick['name'], resp.get('model', model), tokens_in=ti, tokens_out=to,
        cost_minor=cost_minor(model, ti, to), duration_ms=ms)

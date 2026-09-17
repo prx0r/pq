@@ -3,7 +3,8 @@ import { execFile } from "node:child_process";
 import { Type } from "typebox";
 import { createAgentSession, DefaultResourceLoader, defineTool, getAgentDir, ModelRuntime, SessionManager } from "@earendil-works/pi-coding-agent";
 
-const XMRECON = "/home/ubuntu/qpbot";
+// System under test (qpbot arena). Override with XMRECON=/path/to/qpbot.
+const XMRECON = process.env.XMRECON ?? "/home/ubuntu/qpbot";
 
 function arena(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {

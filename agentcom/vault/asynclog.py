@@ -28,12 +28,15 @@ class UsageLogger:
 
     def log(self, name: str, model: str, tokens_in: int = 0,
             tokens_out: int = 0, cost_minor: int = 0,
-            duration_ms: int = 0, status_code: int = 200):
+            duration_ms: int = 0, status_code: int = 200,
+            run_id: str = ""):
         """Non-blocking. Drops event if buffer full and drop_on_full=True."""
         event = {"ts": int(time.time()), "name": name, "model": model,
                  "tokens_in": tokens_in, "tokens_out": tokens_out,
                  "cost_minor": cost_minor, "duration_ms": duration_ms,
                  "status_code": status_code}
+        if run_id:
+            event["run_id"] = run_id
         try:
             self.buffer.put_nowait(event)
         except queue.Full:

@@ -27,6 +27,7 @@ BACKEND = os.environ.get("PQ_MODEL", "muse-spark-1.3-contributor")
 
 
 def test_logged_llm_run():
+    run_id = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     vault = Vault(os.path.expanduser("~/.qpbot/vault.json"))
     active = vault.find(kind="llm-inference", tier="paid")
     if not active:
@@ -71,7 +72,7 @@ def test_logged_llm_run():
     text = (resp["choices"][0]["message"]["content"] or "")
     logger.log(pick["name"], model, tokens_in=ti, tokens_out=to,
                cost_minor=cost_minor(model, ti, to),
-               duration_ms=duration_ms)
+               duration_ms=duration_ms, run_id=run_id)
     logger.shutdown()
 
     assert text.strip(), f"empty reply from {BACKEND}"

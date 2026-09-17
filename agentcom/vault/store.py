@@ -14,9 +14,11 @@ Categories organize secrets for agent retrieval:
 from __future__ import annotations
 
 import base64
+import fcntl
 import json
 import os
 import time
+from contextlib import contextmanager
 
 from cryptography.fernet import Fernet, InvalidToken
 
@@ -43,24 +45,51 @@ class Vault:
                                      "vault.key")))
         self._load()
 
-    def _load(self):
-        self.secrets: dict[str, dict] = {}
-        self.audit: list[dict] = []
+    @contextmanager
+    def _locked(self, exclusive: bool):
+        """Cross-process guard: the bg loop, harnesses, dashboard and
+        prize-record subprocesses all share one vault file."""
+        os.makedirs(os.path.dirname(self.store_path) or ".", exist_ok=True)
+        with open(self.store_path + ".lock", "a+") as lf:
+            fcntl.flock(lf.fileno(),
+                        fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+            try:
+                yield
+            finally:
+                fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
+
+    def _load_inner(self):
+        self.secrets = {}
+        self.audit = []
+        # Keys owned by the system under test (e.g. qpbot's prizes) are
+        # preserved verbatim across pq-side saves, never interpreted.
+        self.extra = {}
         if os.path.exists(self.store_path):
             raw = json.load(open(self.store_path))
             self.audit = raw.get("audit", [])
             for name, s in raw.get("secrets", {}).items():
                 self.secrets[name] = s
+            for k, v in raw.items():
+                if k not in ("secrets", "audit"):
+                    self.extra[k] = v
+
+    def _load(self):
+        with self._locked(False):
+            self._load_inner()
+
+    def _save_inner(self):
+        tmp = self.store_path + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump({"secrets": self.secrets, "audit": self.audit,
+                       **self.extra}, f, indent=1)
+        os.replace(tmp, self.store_path)
 
     def _save(self):
         os.makedirs(os.path.dirname(self.store_path) or ".", exist_ok=True)
-        # Atomic rename: concurrent writers can still clobber each other
-        # (last wins, no interleave), so keep a timestamped backup too.
-        tmp = self.store_path + ".tmp"
-        with open(tmp, "w") as f:
-            json.dump({"secrets": self.secrets, "audit": self.audit}, f,
-                      indent=1)
-        os.replace(tmp, self.store_path)
+        # Atomic rename + exclusive lock: readers never see a torn file and
+        # concurrent writers serialize (last wins, no interleave).
+        with self._locked(True):
+            self._save_inner()
 
     def _log(self, event: str, **fields):
         self.audit.append({"ts": int(time.time()), "event": event, **fields})
@@ -140,21 +169,30 @@ class Vault:
             raise ValueError("vault key mismatch")
 
     def record_usage(self, name: str, tokens_in: int = 0,
-                     tokens_out: int = 0, cost_minor: int = 0):
-        """Deterministic usage counter. Called after every API call."""
-        s = self.secrets.get(name)
-        if not s:
-            return
-        u = s.setdefault("usage", {"calls": 0, "tokens_in": 0,
-                                   "tokens_out": 0, "cost_minor": 0})
-        u["calls"] += 1
-        u["tokens_in"] += tokens_in
-        u["tokens_out"] += tokens_out
-        u["cost_minor"] += cost_minor
-        self._log("usage", name=name, tokens_in=tokens_in,
-                  tokens_out=tokens_out, cost_minor=cost_minor,
-                  total_calls=u["calls"])
-        self._save()
+                       tokens_out: int = 0, cost_minor: int = 0):
+        """Deterministic usage counter. Called after every API call.
+
+        Holds the exclusive lock across reload → apply → save, so
+        concurrent flushes serialize and no count is lost.
+        """
+        with self._locked(True):
+            try:
+                self._load_inner()
+            except Exception:
+                pass
+            s = self.secrets.get(name)
+            if not s:
+                return
+            u = s.setdefault("usage", {"calls": 0, "tokens_in": 0,
+                                       "tokens_out": 0, "cost_minor": 0})
+            u["calls"] += 1
+            u["tokens_in"] += tokens_in
+            u["tokens_out"] += tokens_out
+            u["cost_minor"] += cost_minor
+            self._log("usage", name=name, tokens_in=tokens_in,
+                      tokens_out=tokens_out, cost_minor=cost_minor,
+                      total_calls=u["calls"])
+            self._save_inner()
 
     def set_active(self, name: str, active: bool):
         s = self.secrets.get(name)
