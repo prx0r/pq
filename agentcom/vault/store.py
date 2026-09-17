@@ -54,8 +54,13 @@ class Vault:
 
     def _save(self):
         os.makedirs(os.path.dirname(self.store_path) or ".", exist_ok=True)
-        json.dump({"secrets": self.secrets, "audit": self.audit},
-                  open(self.store_path, "w"), indent=1)
+        # Atomic rename: concurrent writers can still clobber each other
+        # (last wins, no interleave), so keep a timestamped backup too.
+        tmp = self.store_path + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump({"secrets": self.secrets, "audit": self.audit}, f,
+                      indent=1)
+        os.replace(tmp, self.store_path)
 
     def _log(self, event: str, **fields):
         self.audit.append({"ts": int(time.time()), "event": event, **fields})

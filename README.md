@@ -5,6 +5,32 @@ targets. Vault-held API keys, deterministic usage tracking, rate limiting,
 circuit breaking. Built for Pi workers via ACP, Argos desktop, AgentDeck
 phone control.
 
+## Start here (AI agents: ChatGPT, Pi, fresh shells)
+
+No keys, no config, no setup. Every script uses our hardcoded Muse backend
+(`muse-spark-1.3-contributor` via OpenCode Go; keys resolve from the vault,
+usage is logged). Run from the repo root:
+
+```bash
+./scripts/ask.sh "your prompt here"   # one-shot Muse inference, prints reply
+./scripts/smoke.sh                    # fast health check, no spend
+./scripts/run-all.sh                  # full validation: arena + chaos + autonomy loop
+./scripts/live.sh [turns]             # live Muse red-team run (spends budget)
+./scripts/dashboard.sh [port]         # 0-9 human-rail transport, loopback only
+./scripts/bg.sh {start|status|stop}   # background logged test loop (no spend)
+```
+
+`ask.sh` is the primitive: prompt in, Muse reply out, exit non-zero with
+`REFUSED:` on spend caps or dead keys. All runs append JSONL evidence under
+`runs/` (gitignored). `tests/` holds one rule: a test IS a logged LLM run —
+`pytest tests/` calls Muse live.
+
+Backend details (you don't need these to use it): model + endpoint are
+pinned in `scripts/lib.sh`; the harness speaks the Responses API at
+`https://opencode.ai/zen/go/v1/responses`; vault grants are scoped per
+tool/worker with Failover across keys. Do not commit keys — the vault file
+lives outside the repo and is never in git.
+
 ## What's here
 
 **core/** — the running game. Server-side arena with 3 demo targets,
@@ -26,18 +52,21 @@ and red-team mode (explicit arena tools via CLI). TypeScript, needs
 **dashboard/** — stdlib HTTP server. Chat + H-task rail + vault deposit.
 Token-gated, binds loopback. Cloudflare tunnel for remote access.
 
-**harness.py** — live test runner. Vault picks active key, calls mimo-v2.5
-via OpenCode Go, feeds tool results back, tracks usage.
+**harness.py** — live test runner. Vault picks a usable key (failover),
+calls Muse on OpenCode Go, feeds tool results back, tracks usage. Honors
+`PQ_SPEND_CAP_TOKENS` / `PQ_SPEND_CAP_MINOR` (unset = uncapped).
 
 ## Run
 
 ```bash
-python3 -m pytest tests/ -q                    # 43 tests
-python3 -m core.cli tournament                 # 3 lanes compete
-python3 -m core.cli autopilot --rounds 3       # continuous loop
-python3 -m core.cli vault-find --kind llm      # active keys
+./scripts/smoke.sh                       # health check, no spend
+./scripts/run-all.sh                     # arena + chaos + autonomy loop
+./scripts/live.sh 20                     # live Muse red-team (spends budget)
+python3 -m pytest tests/ -q              # the one live LLM test
+python3 -m core.cli tournament           # 3 lanes compete
+python3 -m core.cli autopilot --rounds 3 # continuous loop
+python3 -m core.cli vault-find --kind llm      # usable keys
 python3 -m core.cli vault-usage                # spend summary
-python3 harness.py                             # live LLM test
 ```
 
 ## Vault primitives (ported from VoidLLM)
