@@ -109,7 +109,7 @@ def call_api(key: str, messages: list[dict],
                "Authorization": f"Bearer {key}",
                "x-opencode-session": str(uuid.uuid4()),
                "User-Agent": "pq-harness/0.2"}
-    if model.startswith("muse-spark") or model.startswith("mimo-"):
+    if model.startswith("muse-spark"):
         # Muse Spark on OpenCode Go is served via the Responses API, not
         # chat/completions (chat returns 500 for muse-spark ids).
         body = json.dumps({"model": model,
@@ -128,14 +128,20 @@ def call_api(key: str, messages: list[dict],
                 "usage": {"prompt_tokens": ti, "completion_tokens": to},
                 "model": raw.get("model", model)}
     body = json.dumps({"model": model, "messages": messages,
-                       "max_tokens": 300}).encode()
+                       "max_tokens": cfg.get("llm.max_output_tokens", 4096)}).encode()
     req = urllib.request.Request(
         CHAT_URL,
         data=body,
         headers=headers,
         method="POST")
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read())
+    with urllib.request.urlopen(req, timeout=120) as r:
+        raw = json.loads(r.read())
+    # mimo-v2.5 is a reasoning model: content may be null, reasoning field
+    # has the thinking. Extract content from the right place.
+    msg = raw.get("choices", [{}])[0].get("message", {})
+    if not msg.get("content") and msg.get("reasoning"):
+        msg["content"] = msg["reasoning"]
+    return raw
 
 
 _TOOL_ALIASES = {"try_creds": "try-creds", "read_file": "read-file",

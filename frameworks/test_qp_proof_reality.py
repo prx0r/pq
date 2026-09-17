@@ -49,17 +49,12 @@ def call_tool(name, args=None):
 
 
 def test_whale_feed_qp_proof():
-    """QP proof: large crypto transactions exist.
-
-    Claim: "BTC transactions > $100k exist"
-    Evidence: whale_feed API response
-    Gates: evidence-fresh, two-sources
-    Receipt: content-addressed proof
-    """
+    """QP proof: large crypto transactions exist."""
     # 1. Call real API
     api_result = call_tool("whale_feed", ["100000"])
     assert api_result.get("ok") is True, f"whale_feed must succeed: {api_result}"
-    assert api_result.get("count", 0) > 0, "must find transactions"
+    txs = api_result.get("txs", [])
+    assert len(txs) > 0, f"must find transactions, got count={api_result.get('count', 0)}"
     
     # 2. Create evidence from real data
     txs = api_result.get("txs", [])
