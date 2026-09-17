@@ -109,7 +109,7 @@ def call_api(key: str, messages: list[dict],
                "Authorization": f"Bearer {key}",
                "x-opencode-session": str(uuid.uuid4()),
                "User-Agent": "pq-harness/0.2"}
-    if model.startswith("muse-spark"):
+    if model.startswith("muse-spark") or model.startswith("mimo-"):
         # Muse Spark on OpenCode Go is served via the Responses API, not
         # chat/completions (chat returns 500 for muse-spark ids).
         body = json.dumps({"model": model,
