@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+runs/
+round-*/
+core/runs/
+vault.json
+vault.key
+node_modules/
+*.log
