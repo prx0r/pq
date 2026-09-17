@@ -31,9 +31,19 @@ def test_logged_llm_run():
     active = vault.find(kind="llm-inference", tier="paid")
     if not active:
         pytest.skip("no active LLM keys in vault")
-    pick = next((a for a in active if a.get("model") == BACKEND), active[0])
-    key = vault.resolve(pick["name"], "dashboard-chat", "chat-session",
-                        pick["capability"])
+    ordered = sorted(active,
+                     key=lambda a: 0 if a.get("model") == BACKEND else 1)
+    key = pick = None
+    for cand in ordered:
+        try:
+            key = vault.resolve(cand["name"], "dashboard-chat",
+                                "chat-session", cand["capability"])
+            pick = cand
+            break
+        except ValueError:
+            continue
+    if key is None:
+        pytest.skip("no usable LLM keys in vault (all spent/expired)")
 
     logger = UsageLogger(vault=vault,
                          log_path=os.path.join(ROOT, "runs", "llm-runs.jsonl"),

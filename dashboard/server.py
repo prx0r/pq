@@ -21,32 +21,40 @@ TOKEN = os.environ.get("DASH_TOKEN", secrets.token_urlsafe(24))
 RUNS = os.path.join(ROOT, "runs")
 HFILE = os.path.join(RUNS, "htasks.json")
 PFILE = os.path.join(RUNS, "provider.json")
+DFILE = os.path.join(RUNS, "decisions.jsonl")
+SFILE = os.path.join(RUNS, "spend.jsonl")
+CFILE = os.path.join(RUNS, "spend_caps.json")
 HISTORY: list[dict] = []
 
 
-def _load_tasks() -> list[dict]:
-    if os.path.exists(HFILE):
-        return json.load(open(HFILE))
-    seed = [
-        {"task_id": "demo-digit-1", "kind": "digit",
-         "question": "Demo pack finished 3/3. Which lane should lead next?",
-         "prediction": "7", "confidence": 0.72, "state": "displayed",
-         "context_hash": "seed", "campaign": "demo", "lane": "creds-first",
-         "deadline": 4102444800, "answer": None},
-        {"task_id": "demo-approval-1", "kind": "confirm",
-         "question": "Approve running the live Pi red-team lane? (no spend yet)",
-         "prediction": "", "confidence": 0.0, "state": "emitted",
-         "context_hash": "seed", "campaign": "demo", "lane": "pi",
-         "deadline": 4102444800, "answer": None},
-    ]
-    os.makedirs(RUNS, exist_ok=True)
-    json.dump(seed, open(HFILE, "w"), indent=1)
-    return seed
+def _seed_queue():
+    from agentcom.htasks.queue import HQueue, HTask
+    q = HQueue()
+    q.emit(HTask("demo-digit-1", "digit",
+                 "Demo pack finished 3/3. Which lane should lead next?",
+                 prediction="7", confidence=0.72, lease_s=3600,
+                 campaign="demo", lane="creds-first"))
+    q.emit(HTask("demo-approval-1", "confirm",
+                 "Approve running the live Pi red-team lane? (no spend yet)",
+                 lease_s=3600, campaign="demo", lane="pi"))
+    q.save(HFILE)
+    return q
 
 
-def _save_tasks(tasks: list[dict]):
-    os.makedirs(RUNS, exist_ok=True)
-    json.dump(tasks, open(HFILE, "w"), indent=1)
+def _load_queue():
+    """Canonical queue from disk. Sweeps expiries; seeds on first boot."""
+    from agentcom.htasks.queue import HQueue
+    if not os.path.exists(HFILE):
+        return _seed_queue()
+    return HQueue.load(HFILE)
+
+
+def _save_queue(q):
+    q.save(HFILE)
+
+
+def _task_list(q) -> list[dict]:
+    return [t.view() | {"answer": t.answer} for t in q.tasks.values()]
 
 
 def _provider() -> dict:
@@ -72,11 +80,22 @@ def _chat_via_provider(message: str) -> str:
         return ("No model configured. Set provider + model below, then "
                 "deposit your key in the rail — chat goes live after that.")
     v = Vault(os.path.expanduser("~/.qpbot/vault.json"))
-    if not v.credential_available("LLM_KEY"):
+    usable = [a for a in v.find(kind="llm-inference", tier="paid")]
+    if not usable:
         return ("No key in the vault yet. Paste it into the rail's secret "
                 "box (it never touches chat) and try again.")
-    key = v.resolve("LLM_KEY", "dashboard-chat", "chat-session",
-                    v.secrets["LLM_KEY"]["capability"])
+    key = key_name = None
+    for cand in usable:
+        try:
+            key = v.resolve(cand["name"], "dashboard-chat", "chat-session",
+                            cand["capability"])
+            key_name = cand["name"]
+            break
+        except ValueError:
+            continue
+    if key is None:
+        return ("Vault keys are present but all spent or expired. "
+                "Deposit a fresh key in the rail and try again.")
     model = prov["model"]
     base = prov["base_url"].rstrip("/")
     if model.startswith("muse-spark"):
@@ -170,7 +189,32 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(page)
         elif path == "/api/tasks":
-            self._json(_load_tasks())
+            # Serving a task IS displaying it to the human: emitted tasks
+            # move to displayed so the phone sees live interrupts.
+            q = _load_queue()
+            touched = False
+            for t in q.tasks.values():
+                if t.state == "emitted":
+                    t.display()
+                    touched = True
+            if touched or q.sweep():
+                _save_queue(q)
+            self._json(_task_list(q))
+        elif path == "/api/tiles":
+            from agentcom.interfaces.agentdeck_bridge import (
+                agentdeck_state, tiles_for_status)
+            from agentcom.ledger.spend import SpendLedger
+            from agentcom.hloop.decisions import calibration
+            q = _load_queue()
+            spend = SpendLedger(SFILE).totals()
+            tiles = tiles_for_status({"programs": []}, hqueue=q,
+                                      spend=spend)
+            self._json({"tiles": tiles, "counts": agentdeck_state(tiles),
+                        "spend": spend,
+                        "calibration": calibration(DFILE)})
+        elif path == "/api/calibration":
+            from agentcom.hloop.decisions import calibration
+            self._json(calibration(DFILE))
         elif path == "/api/status":
             from core import module_adapter
             self._json({"status": module_adapter.status("demo"),
@@ -191,15 +235,8 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"reply": _chat_via_provider(
                 str(body.get("message", ""))[:4000])})
         elif path == "/api/answer":
-            from agentcom.htasks.queue import HQueue, HTask
-            q = HQueue()
-            for raw in _load_tasks():
-                t = HTask(raw["task_id"], raw["kind"], raw["question"],
-                          prediction=raw.get("prediction", ""),
-                          confidence=raw.get("confidence", 0.0))
-                t.state = raw.get("state", "emitted")
-                t.context_hash = raw.get("context_hash", "")
-                q.emit(t)
+            from agentcom.hloop.decisions import calibration, log_decision
+            q = _load_queue()
             t = q.tasks.get(body.get("task_id", ""))
             if not t:
                 self._json({"ok": False, "error": "unknown task"}, 404)
@@ -209,11 +246,16 @@ class Handler(BaseHTTPRequestHandler):
                     t.display()
                 if t.state == "displayed":
                     t.acknowledge()
-                t.answer_task(str(body.get("value", "")),
-                              str(body.get("prediction", "")))
-                _save_tasks([x.view() | {"answer": x.answer}
-                             for x in q.tasks.values()])
-                self._json({"ok": True, "state": t.state})
+                # Prediction is banked server-side at emit time; the client
+                # value is ignored so prediction-before-display always holds.
+                value = str(body.get("value", ""))
+                t.answer_task(value, t.prediction)
+                decision = log_decision(DFILE, t, value)
+                _save_queue(q)
+                self._json({"ok": True, "state": t.state,
+                            "hit": decision["hit"],
+                            "action": decision["semantic_action"],
+                            "calibration": calibration(DFILE)})
             except ValueError as e:
                 self._json({"ok": False, "error": str(e)}, 400)
         elif path == "/api/vault-store":

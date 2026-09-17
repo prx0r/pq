@@ -92,9 +92,18 @@ class Vault:
         return {"name": name, "stored": True, "expires_in_s": ttl_s}
 
     def credential_available(self, name: str) -> bool:
-        """The only thing the model may see."""
+        """The only thing the model may see. False when expired, inactive,
+        or the usage cap is spent — exhausted keys are never offered."""
         s = self.secrets.get(name)
-        return bool(s) and s["expires"] > time.time() and s.get("active", True)
+        if not s:
+            return False
+        if s["expires"] <= time.time():
+            return False
+        if not s.get("active", True):
+            return False
+        if s.get("max_uses") and s.get("uses", 0) >= s["max_uses"]:
+            return False
+        return True
 
     def resolve(self, name: str, tool: str, worker: str,
                 capability: str, scope: str = "") -> str:
@@ -151,10 +160,11 @@ class Vault:
 
     def find(self, kind: str = "", tier: str = "", active_only: bool = True,
              provider: str = "") -> list[dict]:
-        """Agent query: find matching keys without resolving values."""
+        """Agent query: find matching keys without resolving values.
+        With active_only, spent/expired/inactive keys are filtered out."""
         out = []
         for name, s in self.secrets.items():
-            if active_only and not s.get("active", True):
+            if active_only and not self.credential_available(name):
                 continue
             if kind and s.get("kind") != kind:
                 continue

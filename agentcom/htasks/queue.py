@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import time
 
 
@@ -75,6 +76,30 @@ class HTask:
                 "campaign": self.campaign, "lane": self.lane,
                 "deadline": self.deadline}
 
+    def to_record(self) -> dict:
+        """Full persisted form: view + answer + private timing fields."""
+        return (self.view() | {"answer": self.answer,
+                               "created": self.created,
+                               "safe_default": self.safe_default})
+
+    @classmethod
+    def from_record(cls, raw: dict) -> "HTask":
+        """Rebuild from a persisted record. Tolerates the old seed shape."""
+        t = cls(raw["task_id"], raw.get("kind", "digit"),
+                raw.get("question", ""),
+                prediction=raw.get("prediction", ""),
+                confidence=raw.get("confidence", 0.0),
+                lease_s=300,
+                safe_default=raw.get("safe_default", "deny"),
+                campaign=raw.get("campaign", ""), lane=raw.get("lane", ""))
+        t.state = raw.get("state", "emitted")
+        t.created = raw.get("created", t.created)
+        t.deadline = raw.get("deadline", t.deadline)
+        if raw.get("context_hash"):
+            t.context_hash = raw["context_hash"]
+        t.answer = raw.get("answer")
+        return t
+
     def _require(self, *states):
         if self.state not in states:
             raise ValueError(f"task {self.task_id} is {self.state}, "
@@ -82,7 +107,9 @@ class HTask:
 
 
 class HQueue:
-    """In-memory queue. Persistence is the daemon's job, not this module's."""
+    """Human queue. In-memory working set + atomic file persist (save/load).
+    The dashboard and the daemon share one file; every load sweeps expiries
+    so safe-defaults apply even if nobody is watching."""
 
     def __init__(self):
         self.tasks: dict[str, HTask] = {}
@@ -112,3 +139,28 @@ class HQueue:
 
     def to_json(self) -> str:
         return json.dumps([t.view() for t in self.tasks.values()], indent=1)
+
+    def records(self) -> list[dict]:
+        return [t.to_record() for t in self.tasks.values()]
+
+    def save(self, path: str):
+        """Atomic persist: tmp file + rename, so readers never see halves."""
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        tmp = path + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(self.records(), f, indent=1)
+        os.replace(tmp, path)
+
+    @classmethod
+    def load(cls, path: str) -> "HQueue":
+        """Load persisted records; sweeps expiries. Missing file = empty."""
+        q = cls()
+        if os.path.exists(path):
+            for raw in json.load(open(path)):
+                try:
+                    t = HTask.from_record(raw)
+                except (ValueError, KeyError):
+                    continue
+                q.tasks[t.task_id] = t
+        q.sweep()
+        return q
